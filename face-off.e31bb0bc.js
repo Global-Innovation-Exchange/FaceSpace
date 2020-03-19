@@ -28764,11 +28764,7 @@ async function renderFacePrediction(predictions) {
   }
 
   return [];
-} // These anchor points allow the hand pointcloud to resize according to its
-// position in the input.
-
-
-const ANCHOR_POINTS = [[0, 0, 0], [0, -VIDEO_HEIGHT, 0], [-VIDEO_WIDTH, 0, 0], [-VIDEO_WIDTH, -VIDEO_HEIGHT, 0]];
+}
 
 async function renderHandPrediction(predictions) {
   if (predictions.length > 0) {
@@ -28788,6 +28784,37 @@ async function renderHandPrediction(predictions) {
   return [];
 }
 
+function comparePoints(points1, points2) {
+  // TODO better algorithm
+  let shortestDistance = undefined;
+
+  for (let i = 0; i < points1.length; i++) {
+    for (let j = 0; j < points2.length; j++) {
+      const p1 = points1[i];
+      const p2 = points2[j];
+      const x = p1[0] - p2[0];
+      const y = p1[1] - p2[1];
+      const z = p1[2] - p2[2];
+      const d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+
+      if (shortestDistance === undefined || d < shortestDistance.d) {
+        shortestDistance = {
+          x,
+          y,
+          z,
+          d
+        };
+      }
+    }
+  }
+
+  return shortestDistance;
+} // These anchor points allow the hand pointcloud to resize according to its
+// position in the input.
+
+
+const ANCHOR_POINTS = [[0, 0, 0], [0, -VIDEO_HEIGHT, 0], [-VIDEO_WIDTH, 0, 0], [-VIDEO_WIDTH, -VIDEO_HEIGHT, 0]];
+
 async function renderPrediction() {
   stats.begin();
   const [fp, hp] = await Promise.all([faceModel.estimateFaces(video), handModel.estimateHands(video)]);
@@ -28802,6 +28829,26 @@ async function renderPrediction() {
   }
 
   scatterGLHasInitialized = true;
+
+  const f = d => {
+    // Format to number to have consistent length
+    const options = {
+      minimumIntegerDigits: 3,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      useGrouping: false
+    };
+    let str = d.toLocaleString('en', options);
+
+    if (d >= 0) {
+      str = ` ${str}`;
+    }
+
+    return str;
+  };
+
+  const d = comparePoints(points[0], points[1]);
+  document.querySelector('#distance').innerText = d ? `Closest ||p||: ${f(d.d)}, Δx: ${f(d.x)}, Δy: ${f(d.y)}, Δz: ${f(d.z)}` : `Closest ||p||: Undefined`;
   stats.end();
   requestAnimationFrame(renderPrediction);
 }
