@@ -275,6 +275,14 @@ function getIntersectionVolume(box1, box2) {
   return (xMax - xMin) * (yMax - yMin) * (zMax - zMin);
 }
 
+const BOX_SEQ = {
+  top: [0, 2, 6, 4],
+  bottom: [1, 3, 7, 5],
+  column1: [0, 1],
+  column2: [2, 3],
+  column3: [4, 5],
+  column4: [6, 7],
+};
 function boxToPoints(box) {
   if (box) {
     return [
@@ -326,21 +334,35 @@ async function renderPrediction() {
 
   const handBox = getBoundingBox3D(handPoints, false);
   const faceBox = getBoundingBox3D(facePoints, true);
+  const handBoxPoints = boxToPoints(handBox);
+  const faceBoxPoints = boxToPoints(faceBox);
 
   const dataset = new ScatterGL.Dataset(
     handPoints.concat(facePoints)
       .concat(ANCHOR_POINTS)
-      .concat(boxToPoints(handBox))
-      .concat(boxToPoints(faceBox))
+      .concat(handBoxPoints)
+      .concat(faceBoxPoints)
   );
   if (!scatterGLHasInitialized) {
     scatterGL.render(dataset);
   } else {
-    // const fingers = Object.keys(fingerLookupIndices);
-    // scatterGL.setSequences(fingers.map(finger => ({ indices: fingerLookupIndices[finger] })));
     scatterGL.updateDataset(dataset);
   }
   scatterGLHasInitialized = true;
+
+  // Render lines for fingers and bounding boxes
+  const fingerKeys = Object.keys(fingerLookupIndices);
+  const boxKeys = Object.keys(BOX_SEQ);
+  // Add finger lines
+  const fingerSeq = handPoints.length > 0 ? fingerKeys.map(finger => ({ indices: fingerLookupIndices[finger] })) : [];
+  // Add hand bounding box lines
+  const handBoxSeqOffset = handPoints.length + facePoints.length + ANCHOR_POINTS.length;
+  const handBoxSeq = handBoxPoints.length > 0 ? boxKeys.map(b => ({ indices: BOX_SEQ[b].map(s => s + handBoxSeqOffset) })) : [];
+  // Add face bounding box lines
+  const faceBoxSeqOffset = handBoxSeqOffset + handBoxPoints.length;
+  const faceBoxSeq = faceBoxPoints.length > 0 ? boxKeys.map(b => ({ indices: BOX_SEQ[b].map(s => s + faceBoxSeqOffset) })) : [];
+  scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
+
   scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
     let length = handPoints.length;
     if (i < length) return 'red';
