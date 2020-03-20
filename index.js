@@ -243,7 +243,6 @@ function getBoundingBox3D(points, isFace) {
     if (isFace) {
       // Hard code to extend the bounding box of the face
       // to cover the ear
-      box.zMax = box.zMax + 20;
       box.xMax = box.xMax + 15;
       box.xMin = box.xMin - 15;
     }
