@@ -104,6 +104,7 @@ function setupDatGui() {
   gui.add(state, 'backend', ['wasm', 'webgl', 'cpu'])
     .onChange(async backend => {
       await tf.setBackend(backend);
+      await tf.ready();
     });
 
   gui.add(state, 'maxFaces', 1, 20, 1).onChange(async val => {
@@ -200,6 +201,80 @@ async function renderHandPrediction(predictions) {
   return [];
 }
 
+function getBoundingBox3D(points, isFace) {
+  let box = undefined;
+
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    const x = p[0];
+    const y = p[1];
+    const z = p[2];
+    if (box === undefined) {
+      box = {
+        xMin: x,
+        xMax: x,
+        yMin: y,
+        yMax: y,
+        zMin: z,
+        zMax: z,
+      };
+    }
+    if (x < box.xMin) {
+      box.xMin = x;
+    }
+    if (x > box.xMax) {
+      box.xMax = x;
+    }
+    if (y < box.yMin) {
+      box.yMin = y;
+    }
+    if (y > box.yMax) {
+      box.yMax = y;
+    }
+    if (z < box.zMin) {
+      box.zMin = z;
+    }
+    if (z > box.zMax) {
+      box.zMax = z;
+    }
+  }
+
+  if (box !== undefined) {
+    if (isFace) {
+      // Hard code to extend the bounding box of the face
+      // to cover the ear
+      box.zMax = box.zMax + 20;
+      box.xMax = box.xMax + 15;
+      box.xMin = box.xMin - 15;
+    }
+
+    box.xCenter = box.xMax - Math.abs(box.xMax - box.xMin);
+    box.yCenter = box.yMax - Math.abs(box.yMax - box.yMin);
+    box.zCenter = box.zMax - Math.abs(box.zMax - box.zMin);
+  }
+
+  return box;
+}
+
+function getIntersectionVolume(box1, box2) {
+  if (!box1 || !box2) return 0.0;
+
+  // determine the coordinates of the intersection rectangle
+  const xMin = Math.max(box1.xMin, box2.xMin);
+  const yMin = Math.max(box1.yMin, box2.yMin);
+  const zMin = Math.max(box1.zMin, box2.zMin);
+
+  const xMax = Math.min(box1.xMax, box2.xMax);
+  const yMax = Math.min(box1.yMax, box2.yMax);
+  const zMax = Math.min(box1.zMax, box2.zMax);
+
+  if (xMax < xMin || yMax < yMin || zMax < zMin) {
+    return 0.0;
+  }
+
+  return (xMax - xMin) * (yMax - yMin) * (zMax - zMin);
+}
+
 function comparePoints(points1, points2) {
   // TODO better algorithm
   let shortestDistance = undefined;
@@ -231,14 +306,17 @@ async function renderPrediction() {
   stats.begin();
   const [fp, hp] = await Promise.all([faceModel.estimateFaces(video), handModel.estimateHands(video)]);
   ctx.drawImage(video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
-  const points = await Promise.all([renderHandPrediction(hp), renderFacePrediction(fp)]);
+  const points = await Promise.all([renderFacePrediction(fp), renderHandPrediction(hp)]);
   const dataset = new ScatterGL.Dataset(points.flat().concat(ANCHOR_POINTS));
   if (!scatterGLHasInitialized) {
     scatterGL.render(dataset);
   } else {
+    // const fingers = Object.keys(fingerLookupIndices);
+    // scatterGL.setSequences(fingers.map(finger => ({ indices: fingerLookupIndices[finger] })));
     scatterGL.updateDataset(dataset);
   }
   scatterGLHasInitialized = true;
+
   const f = (d) => { // Format to number to have consistent length
     const options = { minimumIntegerDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false };
     let str = d.toLocaleString('en', options);
@@ -247,10 +325,20 @@ async function renderPrediction() {
     }
     return str;
   };
-  const d = comparePoints(points[0], points[1]);
+  const [handPoints, facePoints] = points;
+  const handBox = getBoundingBox3D(handPoints, false);
+  const faceBox = getBoundingBox3D(facePoints, true);
+  const deltaVolume = getIntersectionVolume(handBox, faceBox);
+  const d = comparePoints(handPoints, facePoints);
+
   document.querySelector('#distance').innerText = d
     ? `Closest ||p||: ${f(d.d)}, Δx: ${f(d.x)}, Δy: ${f(d.y)}, Δz: ${f(d.z)}`
     : `Closest ||p||: Undefined`;
+
+  document.querySelector('#intersection').innerText = `Volume intersected: ${deltaVolume}`;
+  document.querySelector('#deltaCenter').innerText = d
+    ? `Center bounding box ||p||: ${f(Math.sqrt(Math.pow(handBox.xCenter - faceBox.xCenter, 2) + Math.pow(handBox.yCenter - faceBox.yCenter, 2) + Math.pow(handBox.zCenter - faceBox.zCenter, 2)))} Δx:${f(handBox.xCenter - faceBox.xCenter)} Δy:${f(handBox.yCenter - faceBox.yCenter)} Δz:${f(handBox.zCenter - faceBox.zCenter)}`
+    : `Center bounding box: Undefined`;
   stats.end();
   requestAnimationFrame(renderPrediction);
 }
