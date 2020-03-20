@@ -243,8 +243,8 @@ function getBoundingBox3D(points, isFace) {
     if (isFace) {
       // Hard code to extend the bounding box of the face
       // to cover the ear
-      box.xMax = box.xMax + 15;
-      box.xMin = box.xMin - 15;
+      box.xMax = box.xMax + 20;
+      box.xMin = box.xMin - 20;
     }
 
     box.xCenter = box.xMax - Math.abs(box.xMax - box.xMin);
@@ -394,6 +394,20 @@ async function renderPrediction() {
   document.querySelector('#deltaCenter').innerText = d
     ? `Center bounding box ||p||: ${f(Math.sqrt(Math.pow(handBox.xCenter - faceBox.xCenter, 2) + Math.pow(handBox.yCenter - faceBox.yCenter, 2) + Math.pow(handBox.zCenter - faceBox.zCenter, 2)))} Δx:${f(handBox.xCenter - faceBox.xCenter)} Δy:${f(handBox.yCenter - faceBox.yCenter)} Δz:${f(handBox.zCenter - faceBox.zCenter)}`
     : `Center bounding box: Undefined`;
+
+  let detected = false;
+  if (handBox && faceBox && deltaVolume > 0 && !!d) {
+    // Only if the two bounding boxes intersect
+    if (faceBox.xMin < handBox.xMin && handBox.xMax < faceBox.xMax) {
+      // The hand bounding box is with in the face box,
+      // which means the hand is in front of the face
+      detected = d.d < 10;
+    } else {
+      // The hand is on the side
+      detected = d.d < 30;
+    }
+  }
+  document.querySelector('#detection').innerText = `Detection: ${detected ? 'Yes' : 'No'}`;
   stats.end();
   requestAnimationFrame(renderPrediction);
 }
