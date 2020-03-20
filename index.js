@@ -275,6 +275,22 @@ function getIntersectionVolume(box1, box2) {
   return (xMax - xMin) * (yMax - yMin) * (zMax - zMin);
 }
 
+function boxToPoints(box) {
+  if (box) {
+    return [
+      [box.xMin, box.yMin, box.zMin],
+      [box.xMin, box.yMin, box.zMax],
+      [box.xMin, box.yMax, box.zMin],
+      [box.xMin, box.yMax, box.zMax],
+      [box.xMax, box.yMin, box.zMin],
+      [box.xMax, box.yMin, box.zMax],
+      [box.xMax, box.yMax, box.zMin],
+      [box.xMax, box.yMax, box.zMax],
+    ];
+  }
+  return [];
+}
+
 function comparePoints(points1, points2) {
   // TODO better algorithm
   let shortestDistance = undefined;
@@ -306,8 +322,17 @@ async function renderPrediction() {
   stats.begin();
   const [fp, hp] = await Promise.all([faceModel.estimateFaces(video), handModel.estimateHands(video)]);
   ctx.drawImage(video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
-  const points = await Promise.all([renderFacePrediction(fp), renderHandPrediction(hp)]);
-  const dataset = new ScatterGL.Dataset(points.flat().concat(ANCHOR_POINTS));
+  const [facePoints, handPoints] = await Promise.all([renderFacePrediction(fp), renderHandPrediction(hp)]);
+
+  const handBox = getBoundingBox3D(handPoints, false);
+  const faceBox = getBoundingBox3D(facePoints, true);
+
+  const dataset = new ScatterGL.Dataset(
+    handPoints.concat(facePoints)
+      .concat(ANCHOR_POINTS)
+      .concat(boxToPoints(handBox))
+      .concat(boxToPoints(faceBox))
+  );
   if (!scatterGLHasInitialized) {
     scatterGL.render(dataset);
   } else {
@@ -316,6 +341,18 @@ async function renderPrediction() {
     scatterGL.updateDataset(dataset);
   }
   scatterGLHasInitialized = true;
+  scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
+    let length = handPoints.length;
+    if (i < length) return 'red';
+
+    length = length + facePoints.length;
+    if (i < length) return 'green';
+
+    length = length + ANCHOR_POINTS.length;
+    if (i < length) return 'white';
+
+    return 'blue';
+  });
 
   const f = (d) => { // Format to number to have consistent length
     const options = { minimumIntegerDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false };
@@ -325,9 +362,6 @@ async function renderPrediction() {
     }
     return str;
   };
-  const [handPoints, facePoints] = points;
-  const handBox = getBoundingBox3D(handPoints, false);
-  const faceBox = getBoundingBox3D(facePoints, true);
   const deltaVolume = getIntersectionVolume(handBox, faceBox);
   const d = comparePoints(handPoints, facePoints);
 
