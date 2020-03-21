@@ -275,8 +275,8 @@ function getIntersectionVolume(box1, box2) {
 }
 
 const BOX_SEQ = {
-  top: [0, 2, 6, 4],
-  bottom: [1, 3, 7, 5],
+  top: [0, 2, 6, 4, 0],
+  bottom: [1, 3, 7, 5, 1],
   column1: [0, 1],
   column2: [2, 3],
   column3: [4, 5],
