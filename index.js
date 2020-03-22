@@ -169,18 +169,16 @@ async function renderFacePrediction(predictions) {
       }
     });
 
-    if (renderPointcloud && state.renderPointcloud && scatterGL != null) {
-      const pointsData = predictions.map(prediction => {
-        let scaledMesh = prediction.scaledMesh;
-        return scaledMesh.map(point => ([-point[0], -point[1], -point[2]]));
-      });
+    const pointsData = predictions.map(prediction => {
+      let scaledMesh = prediction.scaledMesh;
+      return scaledMesh.map(point => ([-point[0], -point[1], -point[2]]));
+    });
 
-      let flattenedPointsData = [];
-      for (let i = 0; i < pointsData.length; i++) {
-        flattenedPointsData = flattenedPointsData.concat(pointsData[i]);
-      }
-      return flattenedPointsData;
+    let flattenedPointsData = [];
+    for (let i = 0; i < pointsData.length; i++) {
+      flattenedPointsData = flattenedPointsData.concat(pointsData[i]);
     }
+    return flattenedPointsData;
   }
   return [];
 }
@@ -190,12 +188,10 @@ async function renderHandPrediction(predictions) {
       const result = predictions[i].landmarks;
       drawKeypoints(ctx, result, predictions[i].annotations);
 
-      if (renderPointcloud && state.renderPointcloud && scatterGL != null) {
-        const pointsData = result.map(point => {
-          return [-point[0], -point[1], -point[2]];
-        });
-        return pointsData;
-      }
+      const pointsData = result.map(point => {
+        return [-point[0], -point[1], -point[2]];
+      });
+      return pointsData;
     }
   }
   return [];
@@ -336,18 +332,20 @@ async function renderPrediction() {
   const handBoxPoints = boxToPoints(handBox);
   const faceBoxPoints = boxToPoints(faceBox);
 
-  const dataset = new ScatterGL.Dataset(
-    handPoints.concat(facePoints)
-      .concat(ANCHOR_POINTS)
-      .concat(handBoxPoints)
-      .concat(faceBoxPoints)
-  );
-  if (!scatterGLHasInitialized) {
-    scatterGL.render(dataset);
-  } else {
-    scatterGL.updateDataset(dataset);
+  if (renderPointcloud && state.renderPointcloud && scatterGL != null) {
+    const dataset = new ScatterGL.Dataset(
+      handPoints.concat(facePoints)
+        .concat(ANCHOR_POINTS)
+        .concat(handBoxPoints)
+        .concat(faceBoxPoints)
+    );
+    if (!scatterGLHasInitialized) {
+      scatterGL.render(dataset);
+    } else {
+      scatterGL.updateDataset(dataset);
+    }
+    scatterGLHasInitialized = true;
   }
-  scatterGLHasInitialized = true;
 
   // Render lines for fingers and bounding boxes
   const fingerKeys = Object.keys(fingerLookupIndices);
