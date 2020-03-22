@@ -29,7 +29,7 @@ tfjsWasm.setWasmPath(
   tfjsWasm.version_wasm}/dist/tfjs-backend-wasm.wasm`);
 
 function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -337,6 +337,17 @@ async function renderPrediction() {
   const handBoxPoints = boxToPoints(handBox);
   const faceBoxPoints = boxToPoints(faceBox);
 
+  const fingerKeys = Object.keys(fingerLookupIndices);
+  const boxKeys = Object.keys(BOX_SEQ);
+  // Add finger lines
+  const fingerSeq = handPoints.length > 0 ? fingerKeys.map(finger => ({ indices: fingerLookupIndices[finger] })) : [];
+  // Add hand bounding box lines
+  const handBoxSeqOffset = handPoints.length + facePoints.length + ANCHOR_POINTS.length;
+  const handBoxSeq = handBoxPoints.length > 0 ? boxKeys.map(b => ({ indices: BOX_SEQ[b].map(s => s + handBoxSeqOffset) })) : [];
+  // Add face bounding box lines
+  const faceBoxSeqOffset = handBoxSeqOffset + handBoxPoints.length;
+  const faceBoxSeq = faceBoxPoints.length > 0 ? boxKeys.map(b => ({ indices: BOX_SEQ[b].map(s => s + faceBoxSeqOffset) })) : [];
+
   if (renderPointcloud && state.renderPointcloud && scatterGL != null) {
     const dataset = new ScatterGL.Dataset(
       handPoints.concat(facePoints)
@@ -349,34 +360,23 @@ async function renderPrediction() {
     } else {
       scatterGL.updateDataset(dataset);
     }
-    scatterGLHasInitialized = true;
-  }
 
   // Render lines for fingers and bounding boxes
-  const fingerKeys = Object.keys(fingerLookupIndices);
-  const boxKeys = Object.keys(BOX_SEQ);
-  // Add finger lines
-  const fingerSeq = handPoints.length > 0 ? fingerKeys.map(finger => ({ indices: fingerLookupIndices[finger] })) : [];
-  // Add hand bounding box lines
-  const handBoxSeqOffset = handPoints.length + facePoints.length + ANCHOR_POINTS.length;
-  const handBoxSeq = handBoxPoints.length > 0 ? boxKeys.map(b => ({ indices: BOX_SEQ[b].map(s => s + handBoxSeqOffset) })) : [];
-  // Add face bounding box lines
-  const faceBoxSeqOffset = handBoxSeqOffset + handBoxPoints.length;
-  const faceBoxSeq = faceBoxPoints.length > 0 ? boxKeys.map(b => ({ indices: BOX_SEQ[b].map(s => s + faceBoxSeqOffset) })) : [];
-  scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
+    scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
+    scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
+      let length = handPoints.length;
+      if (i < length) return 'red';
 
-  scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
-    let length = handPoints.length;
-    if (i < length) return 'red';
+      length = length + facePoints.length;
+      if (i < length) return 'green';
 
-    length = length + facePoints.length;
-    if (i < length) return 'green';
+      length = length + ANCHOR_POINTS.length;
+      if (i < length) return 'white';
 
-    length = length + ANCHOR_POINTS.length;
-    if (i < length) return 'white';
-
-    return 'blue';
-  });
+      return 'blue';
+    });
+    scatterGLHasInitialized = true;
+  }
 
   const f = (d) => { // Format to number to have consistent length
     const options = { minimumIntegerDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false };
@@ -413,8 +413,8 @@ async function renderPrediction() {
   document.querySelector('#detection').innerText = `Detection: ${detected ? 'Yes' : 'No'}`;
   stats.end();
   if (state.timeout > 0) {
-  await sleep(500);
-  renderPrediction();
+    await sleep(500);
+    renderPrediction();
   } else {
     requestAnimationFrame(renderPrediction);
   }
