@@ -28,6 +28,9 @@ tfjsWasm.setWasmPath(
   `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${
   tfjsWasm.version_wasm}/dist/tfjs-backend-wasm.wasm`);
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
   const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -92,6 +95,7 @@ const stats = new Stats();
 const state = {
   backend: 'webgl',
   maxFaces: 1,
+  timeout: 500,
   triangulateMesh: true,
 };
 
@@ -110,6 +114,7 @@ function setupDatGui() {
   gui.add(state, 'maxFaces', 1, 20, 1).onChange(async val => {
     faceModel = await facemesh.load({ maxFaces: val });
   });
+  gui.add(state, 'timeout', 0, 2000);
 
   gui.add(state, 'triangulateMesh');
 
@@ -407,7 +412,12 @@ async function renderPrediction() {
   }
   document.querySelector('#detection').innerText = `Detection: ${detected ? 'Yes' : 'No'}`;
   stats.end();
-  requestAnimationFrame(renderPrediction);
+  if (state.timeout > 0) {
+  await sleep(500);
+  renderPrediction();
+  } else {
+    requestAnimationFrame(renderPrediction);
+  }
 }
 
 
