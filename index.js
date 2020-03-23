@@ -413,11 +413,9 @@ async function renderPrediction() {
   document.querySelector('#detection').innerText = `Detection: ${detected ? 'Yes' : 'No'}`;
   stats.end();
   if (state.timeout > 0) {
-    await sleep(500);
-    renderPrediction();
-  } else {
-    requestAnimationFrame(renderPrediction);
+    await sleep(state.timeout);
   }
+    renderPrediction();
 }
 
 
