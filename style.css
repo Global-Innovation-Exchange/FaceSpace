@@ -1,0 +1,61 @@
+.canvas-wrapper, #scatter-gl-container {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  #scatter-gl-container {
+    border: solid 1px black;
+    position: relative;
+  }
+
+  /* center the canvas within its wrapper */
+  #scatter-gl-container canvas {
+    transform: translate3d(-50%, -50%, 0);
+    left: 50%;
+    top: 50%;
+    position: absolute;
+  }
+
+/* UI */
+
+*{
+    font-family: Futura
+  }
+  
+  body, html{
+    height:90%;
+    scroll-behavior: smooth;
+  }
+  
+  .header{
+    background-color: #FF9500; 
+    padding: 15px; 
+    text-align: center; 
+  }
+  
+  .columnA, .columnB{ 
+    float: left;  
+    padding: 15px; 
+    text-align:justify; 
+  } 
+  
+  .columnA{
+    width: 60%;
+  }
+  
+  .columnB{
+    width: 40%;
+  }
+  
+  /* .banner{
+    background-color: #FF9500; 
+    height: 100%;
+    scroll-behavior: smooth;
+  } */
+/* 
+  .button {
+    display: inline-block;
+    padding: 3px 5px;
+    border: 1px solid #000;
+    background: #eee;
+  } */

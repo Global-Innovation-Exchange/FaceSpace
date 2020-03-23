@@ -14,31 +14,27 @@ limitations under the License.
 ==============================================================================-->
 
 <head>
-  <!-- Load three.js -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
-<!-- Load scatter-gl.js -->
-<script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.0.1/lib/scatter-gl.min.js"></script>
-<style>
-  .canvas-wrapper, #scatter-gl-container {
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  #scatter-gl-container {
-    border: solid 1px black;
-    position: relative;
-  }
-
-  /* center the canvas within its wrapper */
-  #scatter-gl-container canvas {
-    transform: translate3d(-50%, -50%, 0);
-    left: 50%;
-    top: 50%;
-    position: absolute;
-  }
-</style>
+    <link rel="stylesheet" href="style.css">
+    <title>Don't Touch Your Face Challenge</title>
 </head>
 <body>
+<!-- UI -->
+  <div class = "banner">
+    <h4> Can you not touch your face? </h4>
+    <h1> Don't Touch Your Face <br> Challenge </h1>     
+    <!-- TODO: href may need to be updated if using GH pages! -->
+    <!-- TODO: you can fully customize the below class if you want a totally custom button (not sure if this can be done w/standard button) -->
+    <!-- <a href="./main.html" class="button">text</a> -->
+    <input type="button" onclick="location.href='./main.html';" value="Start2" />
+  </div>
+  <div class = "content">
+    <h4> What's the Don't Touch Your Face Challenge? </h4>
+    <li> This application will use your camera to detect your hand and face. You can earn one star if the frequency of touching your face is less than 5 times per hour.</li>
+    <li> Notifications will be used to notify when you touch your face. </li>
+    <li> All of the data will be processed and stored locally.</li>
+  </div>
+<!-- END UI -->
+<!-- Begin Video -->
   <div id="main">
     <div class="container">
       <div class="canvas-wrapper">
@@ -56,6 +52,7 @@ limitations under the License.
     </div>
     <pre id="distance"></pre>
   </div>
+<!-- END Video -->
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
-<script src="index.js"></script>
+<!-- <script src="index.js"></script> -->
