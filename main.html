@@ -14,50 +14,75 @@ limitations under the License.
 ==============================================================================-->
 
 <head>
-  <!-- Load three.js -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
-  <!-- Load scatter-gl.js -->
-  <script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.0.1/lib/scatter-gl.min.js"></script>
-  <link rel="stylesheet" href="style.css">
-  <title>Don't Touch Your Face Challenge</title>
-  <script src="ui.js"></script>
-</head>
-<body>
-<!-- UI -->
-<div class = "banner">
-  <h4> Can you not touch your face? </h4>
-  <h1> Don't Touch Your Face <br> Challenge </h1>     
-  <!-- TODO: href may need to be updated if using GH pages! -->
-  <!-- TODO: you can fully customize the below class if you want a totally custom button (not sure if this can be done w/standard button) -->
-  <!-- <a href="./main.html" class="button">text</a> -->
-  <input type="button" onclick="location.href='./main.html';" value="Start2" />
-</div>
-<div class = "content">
-  <h4> What's the Don't Touch Your Face Challenge? </h4>
-  <li> This application will use your camera to detect your hand and face. You can earn one star if the frequency of touching your face is less than 5 times per hour.</li>
-  <li> Notifications will be used to notify when you touch your face. </li>
-  <li> All of the data will be processed and stored locally.</li>
-</div>
-<!-- END UI -->
-<!-- Begin Video -->
-<div id="main">
-  <div class="container">
-    <div class="canvas-wrapper">
-      <canvas id="output"></canvas>
-      <video id="video" playsinline style="
-        -webkit-transform: scaleX(-1);
-        transform: scaleX(-1);
-        visibility: hidden;
-        width: auto;
-        height: auto;
-        ">
-      </video>
-    </div>
-    <div id="scatter-gl-container"></div>
+    <!-- FACEMESH PLOTTING SCRIPTS -->
+    <!-- Load three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
+    <!-- Load scatter-gl.js -->
+    <script src="https://cdn.jsdelivr.net/npm/scatter-gl@0.0.1/lib/scatter-gl.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+    <title>Don't Touch Your Face Challenge</title>
+    <script src="function.js"></script>
+  </head>
+  <body>
+  <!-- UI -->
+  <!--header of website -->
+  <div class = "header">
+    <h3> Don't Touch Your Face Challenge </h3>
   </div>
-  <pre id="distance"></pre>
-</div>
-<!-- END Video -->
-</body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
-<script src="index.js"></script>
+  
+  <div class = "container">
+    <div class = "columnA">
+    <!-- reward stars -->
+    <div class = "block">
+      <p> Stars you've earned: </p>
+      </div>
+    <!--Video display -->
+    <!-- Begin Video -->
+        <div id="main">
+            <div class="container">
+            <div class="canvas-wrapper">
+                <canvas id="output"></canvas>
+                <video id="video" playsinline style="
+                -webkit-transform: scaleX(-1);
+                transform: scaleX(-1);
+                visibility: hidden;
+                width: auto;
+                height: auto;
+                ">
+                </video>
+            </div>
+            <div id="scatter-gl-container"></div>
+            </div>
+            <pre id="distance"></pre>
+        </div>
+        <!-- END Video -->
+
+      <!--Button to start video stram -->
+      <button id="camera" type="button" onclick="startVideo()" class="button">Start camera</button>
+      <p> You can earn one star if the frequency of touching your face is less than 5 times per hour. </p>
+    </div>
+    <div class = "columnB">
+      <!-- realtime counting -->
+      <div class = "rowA">
+        <p> You've touched your face </p>
+        <h1 id = "CoutingInTotal"> 10 </h1>
+        <p id="times"> times </p>
+      </div>
+      
+      <!-- History log -->
+      <div class = "rowB">
+        <h3> Log </h3>
+
+    </div>
+<!--   footer of website -->
+  <div class = "footer">
+    <a href = "index.html"> Home</a>
+    <a> Github </a>
+  </div>
+
+
+  <!-- END UI -->
+  </body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+  <script src="index.js"></script>
