@@ -126,7 +126,7 @@ function comparePoints(points1, points2) {
   return shortestDistance;
 }
 
-async function renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL) {
+async function renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL, onDetection) {
   stats.begin();
   const videoWidth = video.videoWidth;
   const videoHeight = video.videoHeight;
@@ -223,16 +223,17 @@ async function renderPrediction(ctx, video, canvas, faceModel, handModel, scatte
     }
   }
 
+  onDetection();
   document.querySelector('#detection').innerText = `Detection: ${detected ? 'Yes' : 'No'}`;
   stats.end();
   if (state.timeout > 0) {
     await sleep(state.timeout);
   }
-  renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL);
+  renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL, onDetection);
 }
 
 
-async function main() {
+async function main(onDetection = () => {}) {
   await tf.setBackend(state.backend);
   setupDatGui();
 
@@ -270,7 +271,7 @@ async function main() {
       document.querySelector('#scatter-gl-container'),
       { 'rotateOnStart': false, 'selectEnabled': false });
   }
-  renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL);
+  renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL, onDetection);
 };
 
 main();
