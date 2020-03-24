@@ -62,7 +62,6 @@ function setupDatGui() {
     faceModel = await facemesh.load({ maxFaces: val });
   });
   gui.add(state, 'timeout', 0, 2000);
-
   gui.add(state, 'triangulateMesh');
 
   if (renderPointCloud) {
@@ -226,14 +225,10 @@ async function renderPrediction(ctx, video, canvas, faceModel, handModel, scatte
   if(detected) onDetection();
   document.querySelector('#detection').innerText = `Detection: ${detected ? 'Yes' : 'No'}`;
   stats.end();
-  if (state.timeout > 0) {
-    await sleep(state.timeout);
-  }
-  renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL, onDetection);
 }
 
 
-async function main(onDetection = () => {}) {
+async function init(onDetection = () => { }) {
   await tf.setBackend(state.backend);
   setupDatGui();
 
@@ -274,7 +269,32 @@ async function main(onDetection = () => {}) {
       document.querySelector('#scatter-gl-container'),
       { 'rotateOnStart': false, 'selectEnabled': false });
   }
-  renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL, onDetection);
+  return {
+    _loop: async function() {
+      await renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL, onDetection);
+      if (!this.start) return;
+
+      if (state.timeout > 0) {
+        await sleep(state.timeout);
+      }
+      this._loop();
+    },
+    isStarted: false,
+    start: function() {
+      if (!this.isStarted) {
+        this.isStarted = true;
+        this._loop();
+      }
+    },
+    stop: function() {
+      this.isStarted = false;
+    },
+  };
 };
+
+async function main() {
+  const detector = await init();
+  detector.start();
+}
 
 main();
