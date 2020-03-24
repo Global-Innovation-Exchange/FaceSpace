@@ -223,7 +223,7 @@ async function renderPrediction(ctx, video, canvas, faceModel, handModel, scatte
     }
   }
 
-  onDetection();
+  if(detected) onDetection();
   document.querySelector('#detection').innerText = `Detection: ${detected ? 'Yes' : 'No'}`;
   stats.end();
   if (state.timeout > 0) {
