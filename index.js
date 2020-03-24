@@ -20,15 +20,10 @@ import * as facemesh from '@tensorflow-models/facemesh';
 import * as handpose from '@tensorflow-models/handpose';
 import Stats from 'stats.js';
 import * as tf from '@tensorflow/tfjs-core';
-import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 
 import { sleep } from './utils';
 import { fingerLookup, drawFacePredictions, drawHandPredictions } from './draw';
 import { BoundingBox, boxLookup } from './box';
-
-tfjsWasm.setWasmPath(
-  `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${
-  tfjsWasm.version_wasm}/dist/tfjs-backend-wasm.wasm`);
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -57,7 +52,7 @@ if (renderPointCloud) {
 
 function setupDatGui() {
   const gui = new dat.GUI();
-  gui.add(state, 'backend', ['wasm', 'webgl', 'cpu'])
+  gui.add(state, 'backend', ['webgl', 'cpu'])
     .onChange(async backend => {
       await tf.setBackend(backend);
       await tf.ready();
@@ -78,8 +73,8 @@ function setupDatGui() {
   }
 }
 
-async function setupCamera() {
-  const video = document.getElementById('video');
+async function setupCamera(elementId) {
+  const video = document.getElementById(elementId);
 
   const stream = await navigator.mediaDevices.getUserMedia({
     'audio': false,
@@ -244,7 +239,7 @@ async function main() {
   stats.showPanel(0);  // 0: fps, 1: ms, 2: mb, 3+: custom
   document.getElementById('main').appendChild(stats.dom);
 
-  const video = await setupCamera();
+  const video = await setupCamera('video');
   video.play();
   const videoWidth = video.videoWidth;
   const videoHeight = video.videoHeight;
