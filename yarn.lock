@@ -796,13 +796,6 @@
   resolved "https://registry.yarnpkg.com/@tensorflow-models/handpose/-/handpose-0.0.3.tgz#e7e7a355dab69341f9fdbefe0bd2a3091944a9bf"
   integrity sha512-U5SBwxeQUXVawACDn+e0r4XJEDEah/J1HlWAqApXcm8DXjCtGKxQm/8BmFsg6ebbtAQ/R1bripohaQ655fv29w==
 
-"@tensorflow/tfjs-backend-wasm@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-backend-wasm/-/tfjs-backend-wasm-1.7.0.tgz#0858618612c0994debb0f13de60f4d827a11de2a"
-  integrity sha512-krHzXgkZOVcz3wjuJ9+0zjmkRQ8PjlUVwdndx8O4DU3cBR8LNHcSsQACLfZAnSBBD+ORf0ETiwyCtjHWfDz4ug==
-  dependencies:
-    "@types/emscripten" "~0.0.34"
-
 "@tensorflow/tfjs-converter@^1.6.1":
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/@tensorflow/tfjs-converter/-/tfjs-converter-1.7.0.tgz#4dcfeffa0bfa4e26e8b64e15a24a6683645945cc"
@@ -819,11 +812,6 @@
     "@types/webgl2" "0.0.4"
     node-fetch "~2.1.2"
     seedrandom "2.4.3"
-
-"@types/emscripten@~0.0.34":
-  version "0.0.34"
-  resolved "https://registry.yarnpkg.com/@types/emscripten/-/emscripten-0.0.34.tgz#12b4a344274fb102ff2f6c877b37587bc3e46008"
-  integrity sha512-QSb9ojDincskc+uKMI0KXp8e1NALFINCrMlp8VGKGcTSxeEyRTTKyjWw75NYrCZHUsVEEEpr1tYHpbtaC++/sQ==
 
 "@types/offscreencanvas@~2019.3.0":
   version "2019.3.0"

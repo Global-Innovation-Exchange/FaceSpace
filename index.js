@@ -20,13 +20,10 @@ import * as facemesh from '@tensorflow-models/facemesh';
 import * as handpose from '@tensorflow-models/handpose';
 import Stats from 'stats.js';
 import * as tf from '@tensorflow/tfjs-core';
-import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm';
 
-import { TRIANGULATION } from './triangulation';
-
-tfjsWasm.setWasmPath(
-  `https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@${
-  tfjsWasm.version_wasm}/dist/tfjs-backend-wasm.wasm`);
+import { sleep } from './utils';
+import { fingerLookup, drawFacePredictions, drawHandPredictions } from './draw';
+import { BoundingBox, boxLookup } from './box';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -34,94 +31,49 @@ function isMobile() {
   return isAndroid || isiOS;
 }
 
-const fingerLookupIndices = {
-  thumb: [0, 1, 2, 3, 4],
-  indexFinger: [0, 5, 6, 7, 8],
-  middleFinger: [0, 9, 10, 11, 12],
-  ringFinger: [0, 13, 14, 15, 16],
-  pinky: [0, 17, 18, 19, 20],
-}; // for rendering each finger as a polyline
-function drawKeypoints(ctx, keypoints) {
-  const keypointsArray = keypoints;
-
-  for (let i = 0; i < keypointsArray.length; i++) {
-    const y = keypointsArray[i][0];
-    const x = keypointsArray[i][1];
-    drawPoint(ctx, x - 2, y - 2, 3);
-  }
-
-  const fingers = Object.keys(fingerLookupIndices);
-  for (let i = 0; i < fingers.length; i++) {
-    const finger = fingers[i];
-    const points = fingerLookupIndices[finger].map(idx => keypoints[idx]);
-    drawPath(ctx, points, false);
-  }
-}
-
-function drawPoint(ctx, y, x, r) {
-  ctx.beginPath();
-  ctx.arc(x, y, r, 0, 2 * Math.PI);
-  ctx.fill();
-}
-
-function drawPath(ctx, points, closePath) {
-  const region = new Path2D();
-  region.moveTo(points[0][0], points[0][1]);
-  for (let i = 1; i < points.length; i++) {
-    const point = points[i];
-    region.lineTo(point[0], point[1]);
-  }
-
-  if (closePath) {
-    region.closePath();
-  }
-  ctx.stroke(region);
-}
-
-let ctx, videoWidth, videoHeight, video, canvas,
-  scatterGLHasInitialized = false, scatterGL;
-let faceModel, handModel;
-
+let scatterGLHasInitialized = false;
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
 const mobile = isMobile();
 // Don't render the point cloud on mobile in order to maximize performance and
 // to avoid crowding limited screen space.
-const renderPointcloud = mobile === false;
+const renderPointCloud = mobile === false;
 const stats = new Stats();
 const state = {
   backend: 'webgl',
   maxFaces: 1,
+  timeout: 500,
   triangulateMesh: true,
 };
 
-if (renderPointcloud) {
-  state.renderPointcloud = true;
+if (renderPointCloud) {
+  state.renderPointCloud = true;
 }
 
 function setupDatGui() {
   const gui = new dat.GUI();
-  gui.add(state, 'backend', ['wasm', 'webgl', 'cpu'])
+  gui.add(state, 'backend', ['webgl', 'cpu'])
     .onChange(async backend => {
       await tf.setBackend(backend);
+      await tf.ready();
     });
 
   gui.add(state, 'maxFaces', 1, 20, 1).onChange(async val => {
     faceModel = await facemesh.load({ maxFaces: val });
   });
-
+  gui.add(state, 'timeout', 0, 2000);
   gui.add(state, 'triangulateMesh');
 
-  if (renderPointcloud) {
-    gui.add(state, 'renderPointcloud').onChange(render => {
+  if (renderPointCloud) {
+    gui.add(state, 'renderPointCloud').onChange(render => {
       document.querySelector('#scatter-gl-container').style.display =
         render ? 'inline-block' : 'none';
     });
   }
 }
 
-async function setupCamera() {
-  video = document.getElementById('video');
+async function setupCamera(elementId) {
+  const video = document.getElementById(elementId);
 
   const stream = await navigator.mediaDevices.getUserMedia({
     'audio': false,
@@ -142,62 +94,16 @@ async function setupCamera() {
   });
 }
 
-async function renderFacePrediction(predictions) {
-  if (predictions.length > 0) {
-    predictions.forEach(prediction => {
-      const keypoints = prediction.scaledMesh;
-
-      if (state.triangulateMesh) {
-        for (let i = 0; i < TRIANGULATION.length / 3; i++) {
-          const points = [
-            TRIANGULATION[i * 3], TRIANGULATION[i * 3 + 1],
-            TRIANGULATION[i * 3 + 2],
-          ].map(index => keypoints[index]);
-
-          drawPath(ctx, points, true);
-        }
-      } else {
-        for (let i = 0; i < keypoints.length; i++) {
-          const x = keypoints[i][0];
-          const y = keypoints[i][1];
-
-          ctx.beginPath();
-          ctx.arc(x, y, 1 /* radius */, 0, 2 * Math.PI);
-          ctx.fill();
-        }
-      }
-    });
-
-    if (renderPointcloud && state.renderPointcloud && scatterGL != null) {
-      const pointsData = predictions.map(prediction => {
-        let scaledMesh = prediction.scaledMesh;
-        return scaledMesh.map(point => ([-point[0], -point[1], -point[2]]));
-      });
-
-      let flattenedPointsData = [];
-      for (let i = 0; i < pointsData.length; i++) {
-        flattenedPointsData = flattenedPointsData.concat(pointsData[i]);
-      }
-      return flattenedPointsData;
-    }
-  }
-  return [];
+function getFacePoints(predictions) {
+  const pointsData = predictions.map(prediction =>
+    prediction.scaledMesh.map(point => [-point[0], -point[1], -point[2]]));
+  return pointsData.flat();
 }
-async function renderHandPrediction(predictions) {
-  if (predictions.length > 0) {
-    for (let i = 0; i < predictions.length; i++) {
-      const result = predictions[i].landmarks;
-      drawKeypoints(ctx, result, predictions[i].annotations);
 
-      if (renderPointcloud && state.renderPointcloud && scatterGL != null) {
-        const pointsData = result.map(point => {
-          return [-point[0], -point[1], -point[2]];
-        });
-        return pointsData;
-      }
-    }
-  }
-  return [];
+function getHandPoints(predictions) {
+  const pointsData = predictions.map(prediction =>
+    prediction.landmarks.map(point => [-point[0], -point[1], -point[2]]));
+  return pointsData.flat();
 }
 
 function comparePoints(points1, points2) {
@@ -219,26 +125,70 @@ function comparePoints(points1, points2) {
   return shortestDistance;
 }
 
-// These anchor points allow the hand pointcloud to resize according to its
-// position in the input.
-const ANCHOR_POINTS = [
-  [0, 0, 0],
-  [0, -VIDEO_HEIGHT, 0],
-  [-VIDEO_WIDTH, 0, 0],
-  [-VIDEO_WIDTH, -VIDEO_HEIGHT, 0],
-];
-async function renderPrediction() {
+async function renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL, onDetection) {
   stats.begin();
+  const videoWidth = video.videoWidth;
+  const videoHeight = video.videoHeight;
   const [fp, hp] = await Promise.all([faceModel.estimateFaces(video), handModel.estimateHands(video)]);
   ctx.drawImage(video, 0, 0, videoWidth, videoHeight, 0, 0, canvas.width, canvas.height);
-  const points = await Promise.all([renderHandPrediction(hp), renderFacePrediction(fp)]);
-  const dataset = new ScatterGL.Dataset(points.flat().concat(ANCHOR_POINTS));
-  if (!scatterGLHasInitialized) {
-    scatterGL.render(dataset);
-  } else {
-    scatterGL.updateDataset(dataset);
+  drawFacePredictions(ctx, fp, state.triangulateMesh);
+  drawHandPredictions(ctx, hp);
+
+  const handPoints = getHandPoints(hp);
+  const facePoints = getFacePoints(fp);
+  const handBox = BoundingBox.createFromPoints(handPoints);
+  const faceBox = BoundingBox.createFromPoints(facePoints, 20);
+  const handBoxPoints = handBox ? handBox.toPoints() : [];
+  const faceBoxPoints = faceBox ? faceBox.toPoints() : [];
+
+  if (renderPointCloud && state.renderPointCloud && scatterGL != null) {
+    // These anchor points allow the hand pointcloud to resize according to its
+    // position in the input.
+    const ANCHOR_POINTS = [
+      [0, 0, 0],
+      [0, -videoHeight, 0],
+      [-videoWidth, 0, 0],
+      [-videoWidth, -videoHeight, 0],
+    ];
+    const fingerKeys = Object.keys(fingerLookup);
+    const boxKeys = Object.keys(boxLookup);
+    // Add finger lines
+    const fingerSeq = handPoints.length > 0 ? fingerKeys.map(finger => ({ indices: fingerLookup[finger] })) : [];
+    // Add hand bounding box lines
+    const handBoxSeqOffset = handPoints.length + facePoints.length + ANCHOR_POINTS.length;
+    const handBoxSeq = handBoxPoints.length > 0 ? boxKeys.map(b => ({ indices: boxLookup[b].map(s => s + handBoxSeqOffset) })) : [];
+    // Add face bounding box lines
+    const faceBoxSeqOffset = handBoxSeqOffset + handBoxPoints.length;
+    const faceBoxSeq = faceBoxPoints.length > 0 ? boxKeys.map(b => ({ indices: boxLookup[b].map(s => s + faceBoxSeqOffset) })) : [];
+    const dataset = new ScatterGL.Dataset(
+      handPoints.concat(facePoints)
+        .concat(ANCHOR_POINTS)
+        .concat(handBoxPoints)
+        .concat(faceBoxPoints)
+    );
+    if (!scatterGLHasInitialized) {
+      scatterGL.render(dataset);
+    } else {
+      scatterGL.updateDataset(dataset);
+    }
+
+    // Render lines for fingers and bounding boxes
+    scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
+    scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
+      let length = handPoints.length;
+      if (i < length) return 'red';
+
+      length = length + facePoints.length;
+      if (i < length) return 'green';
+
+      length = length + ANCHOR_POINTS.length;
+      if (i < length) return 'white';
+
+      return 'blue';
+    });
+    scatterGLHasInitialized = true;
   }
-  scatterGLHasInitialized = true;
+
   const f = (d) => { // Format to number to have consistent length
     const options = { minimumIntegerDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false };
     let str = d.toLocaleString('en', options);
@@ -247,54 +197,104 @@ async function renderPrediction() {
     }
     return str;
   };
-  const d = comparePoints(points[0], points[1]);
+  const deltaVolume = (handBox && faceBox) ? handBox.getIntersectionVolume(faceBox) : 0.0;
+  const d = comparePoints(handPoints, facePoints);
+
   document.querySelector('#distance').innerText = d
     ? `Closest ||p||: ${f(d.d)}, Δx: ${f(d.x)}, Δy: ${f(d.y)}, Δz: ${f(d.z)}`
     : `Closest ||p||: Undefined`;
+
+  document.querySelector('#intersection').innerText = `Volume intersected: ${deltaVolume}`;
+  document.querySelector('#deltaCenter').innerText = d
+    ? `Center bounding box ||p||: ${f(Math.sqrt(Math.pow(handBox.xCenter - faceBox.xCenter, 2) + Math.pow(handBox.yCenter - faceBox.yCenter, 2) + Math.pow(handBox.zCenter - faceBox.zCenter, 2)))} Δx:${f(handBox.xCenter - faceBox.xCenter)} Δy:${f(handBox.yCenter - faceBox.yCenter)} Δz:${f(handBox.zCenter - faceBox.zCenter)}`
+    : `Center bounding box: Undefined`;
+
+  let detected = false;
+  if (handBox && faceBox && deltaVolume > 0 && !!d) {
+    // Only if the two bounding boxes intersect
+    if (faceBox.xMin < handBox.xMin && handBox.xMax < faceBox.xMax) {
+      // The hand bounding box is with in the face box,
+      // which means the hand is in front of the face
+      detected = d.d < 10;
+    } else {
+      // The hand is on the side
+      detected = d.d < 30;
+    }
+  }
+
+  if(detected) onDetection();
+  document.querySelector('#detection').innerText = `Detection: ${detected ? 'Yes' : 'No'}`;
   stats.end();
-  requestAnimationFrame(renderPrediction);
 }
 
 
-async function main() {
+async function init(onDetection = () => { }) {
   await tf.setBackend(state.backend);
   setupDatGui();
 
   stats.showPanel(0);  // 0: fps, 1: ms, 2: mb, 3+: custom
   document.getElementById('main').appendChild(stats.dom);
 
-  await setupCamera();
+  const video = await setupCamera('video');
   video.play();
-  videoWidth = video.videoWidth;
-  videoHeight = video.videoHeight;
+  const videoWidth = video.videoWidth;
+  const videoHeight = video.videoHeight;
   video.width = videoWidth;
   video.height = videoHeight;
 
-  canvas = document.getElementById('output');
+  const canvas = document.getElementById('output');
   canvas.width = videoWidth;
   canvas.height = videoHeight;
   const canvasContainer = document.querySelector('.canvas-wrapper');
   canvasContainer.style = `width: ${videoWidth}px; height: ${videoHeight}px`;
 
-  ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
   ctx.translate(canvas.width, 0);
   ctx.scale(-1, 1);
   ctx.fillStyle = '#32EEDB';
   ctx.strokeStyle = '#32EEDB';
   ctx.lineWidth = 0.5;
 
-  faceModel = await facemesh.load({ maxFaces: state.maxFaces });
-  handModel = await handpose.load();
-  renderPrediction();
+  const [faceModel, handModel] = await Promise.all([
+    facemesh.load({ maxFaces: state.maxFaces }),
+    handpose.load(),
+  ]);
 
-  if (renderPointcloud) {
+  let scatterGL = null;
+  if (renderPointCloud) {
     document.querySelector('#scatter-gl-container').style =
-      `width: ${VIDEO_WIDTH}px; height: ${VIDEO_HEIGHT}px;`;
+      `width: ${videoWidth}px; height: ${videoHeight}px;`;
 
     scatterGL = new ScatterGL(
       document.querySelector('#scatter-gl-container'),
       { 'rotateOnStart': false, 'selectEnabled': false });
   }
+  return {
+    _loop: async function() {
+      await renderPrediction(ctx, video, canvas, faceModel, handModel, scatterGL, onDetection);
+      if (!this.start) return;
+
+      if (state.timeout > 0) {
+        await sleep(state.timeout);
+      }
+      this._loop();
+    },
+    isStarted: false,
+    start: function() {
+      if (!this.isStarted) {
+        this.isStarted = true;
+        this._loop();
+      }
+    },
+    stop: function() {
+      this.isStarted = false;
+    },
+  };
 };
+
+async function main() {
+  const detector = await init();
+  detector.start();
+}
 
 main();
