@@ -260,8 +260,11 @@ async function main(onDetection = () => {}) {
   ctx.strokeStyle = '#32EEDB';
   ctx.lineWidth = 0.5;
 
-  const faceModel = await facemesh.load({ maxFaces: state.maxFaces });
-  const handModel = await handpose.load();
+  const [faceModel, handModel] = await Promise.all([
+    facemesh.load({ maxFaces: state.maxFaces }),
+    handpose.load(),
+  ]);
+
   let scatterGL = null;
   if (renderPointCloud) {
     document.querySelector('#scatter-gl-container').style =
