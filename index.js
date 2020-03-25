@@ -46,6 +46,7 @@ async function main() {
   stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.getElementById('main').appendChild(stats.dom);
   
+  let touchCounter = 0;
   const mobile = isMobile();
   const detectorParams = {
     renderPointCloud: !mobile,
@@ -55,11 +56,7 @@ async function main() {
     renderPointCloud: true,
     renderCanvas: true,
     renderFaceMesh: true,
-    onDetected: () => {
-      if (Notification.permission === "granted") {
-        // new Notification('You touch your face!');
-      }
-    },
+    onDetected: () => { touchCounter++; },
     onRender: () => { stats.begin(); },
     onRendered: (result) => {
       const d = result.minDistance;
@@ -82,6 +79,15 @@ async function main() {
       stats.end();
     }
   };
+
+  // Check every 5 secs with at least two touches
+  setInterval(() => {
+    if (touchCounter > 2 && Notification.permission === "granted") {
+      new Notification('You touch your face!');
+    }
+    touchCounter = 0;
+  }, 5 * 1000);
+
   const detector = new Detector(document.getElementById('test'), detectorParams);
 
   const state = {
