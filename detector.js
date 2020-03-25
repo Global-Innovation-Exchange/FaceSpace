@@ -201,15 +201,38 @@ export default class Detector {
 
         const handPoints = getHandPoints(hp);
         const facePoints = getFacePoints(fp);
-        const handBox = BoundingBox.createFromPoints(handPoints);
+        let handBox = BoundingBox.createFromPoints(handPoints);
         const faceBox = BoundingBox.createFromPoints(facePoints, 20);
         const handBoxPoints = handBox ? handBox.toPoints() : [];
         const faceBoxPoints = faceBox ? faceBox.toPoints() : [];
 
+        // rescale hand z axis according to center of the face
+        if (handBox && faceBox) {
+            const face_half_width = (faceBox.xMax - faceBox.xMin) / 2;
+            const face_center_x = faceBox.xMin + face_half_width;
+            let hand_x_avg = 0;
+            for (let i = 0; i < handPoints.length; i++) {
+                hand_x_avg += handPoints[i][0];
+            }
+            hand_x_avg /= handPoints.length;
+            const distance_to_face_center_x = Math.abs(hand_x_avg - face_center_x);
+            if (hand_x_avg > faceBox.xMin && hand_x_avg < faceBox.xMax) { // hand in front of the face
+                const is_far_from_center = (face_half_width - distance_to_face_center_x) / face_half_width;
+                const scale_factor = Math.atan(is_far_from_center * 5) / (Math.PI / 2); // from 1 to 0 depends on how far from face center x
+                for (let i = 0; i < handPoints.length; i++) {
+                    handPoints[i][2] = handPoints[i][2] + 50 * scale_factor;
+                    handPoints[i][2] = (handPoints[i][2] > 1) ? handPoints[i][2]*1.5 : handPoints[i][2];
+                }
+            }
+        }
+
+        // regenerate hand bbox after scaling z axis
+        handBox = BoundingBox.createFromPoints(handPoints);
+
         const deltaVolume = (handBox && faceBox)
             ? handBox.getIntersectionVolume(faceBox)
             : 0.0;
-        const octree_distance_threshold = 35; // TODO: maybe turn this into a variable set by GUI?
+        const octree_distance_threshold = 35;
         const minDistance = getShortestDistance(handPoints, facePoints, octree_distance_threshold);
 
         if (this.params.renderPointCloud && this.scatterGL) {
@@ -266,16 +289,8 @@ export default class Detector {
         }
 
         let detected = false;
-        if (handBox && faceBox && deltaVolume > 0 && !!minDistance) {
-            // Only if the two bounding boxes intersect
-            if (faceBox.xMin < handBox.xMin && handBox.xMax < faceBox.xMax) {
-                // The hand bounding box is with in the face box,
-                // which means the hand is in front of the face
-                detected = minDistance.distance < 10;
-            } else {
-                // The hand is on the side
-                detected = minDistance.distance < 30;
-            }
+        if (handBox && faceBox && !!minDistance) {
+            detected = minDistance.distance < 20;
         }
 
         if (detected) this.params.onDetected();
