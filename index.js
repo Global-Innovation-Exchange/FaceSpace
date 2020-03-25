@@ -88,7 +88,7 @@ async function main() {
     touchCounter = 0;
   }, 5 * 1000);
 
-  const detector = new Detector(document.getElementById('test'), detectorParams);
+  const detector = new Detector(document.getElementById('detector-container'), detectorParams);
 
   const state = {
     timeout: detectorParams.timeout,
