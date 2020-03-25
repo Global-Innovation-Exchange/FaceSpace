@@ -24,6 +24,7 @@ function getHandPoints(predictions) {
 }
 
 function getShortestDistance(handPoints, facePoints, distance_threshold) {
+    let min_distance = undefined;
     if (handPoints.length != 0 || handPoints.length != 0) { // if there's no hand or face, there's no need to build the tree
         const tree = createOctree();
         let octree_points = [];
@@ -33,7 +34,6 @@ function getShortestDistance(handPoints, facePoints, distance_threshold) {
         }
         tree.init(octree_points);
 
-        let min_distance = undefined;
         for (let hand_point_idx = 0; hand_point_idx < handPoints.length; hand_point_idx++) {
             const hand_point = handPoints[hand_point_idx];
             const matches = tree.intersectSphere(hand_point[0], hand_point[1], hand_point[2], distance_threshold);
@@ -51,9 +51,8 @@ function getShortestDistance(handPoints, facePoints, distance_threshold) {
                 }
             }
         }
-        return min_distance;
     }
-    return undefined;
+    return min_distance;
 }
 
 const defaultParams = {
@@ -207,6 +206,12 @@ export default class Detector {
         const handBoxPoints = handBox ? handBox.toPoints() : [];
         const faceBoxPoints = faceBox ? faceBox.toPoints() : [];
 
+        const deltaVolume = (handBox && faceBox)
+            ? handBox.getIntersectionVolume(faceBox)
+            : 0.0;
+        const octree_distance_threshold = 35; // TODO: maybe turn this into a variable set by GUI?
+        const minDistance = getShortestDistance(handPoints, facePoints, octree_distance_threshold);
+
         if (this.params.renderPointCloud && this.scatterGL) {
             // These anchor points allow the hand pointcloud to resize according to its
             // position in the input.
@@ -241,25 +246,25 @@ export default class Detector {
             // Render lines for fingers and bounding boxes
             this.scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
             this.scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
+                if (minDistance && 
+                    (i == handPoints.length + minDistance.face_point_idx || i == minDistance.hand_point_idx)) {
+                    return 'red';
+                }
+
                 let length = handPoints.length;
-                if (i < length) return 'red';
+                if (i < length) return 'green'; // set face pointcloud to yellow
 
                 length = length + facePoints.length;
-                if (i < length) return 'green';
+                if (i < length) return 'yellow'; // set hand pointcloud to green
 
                 length = length + ANCHOR_POINTS.length;
                 if (i < length) return 'white';
 
-                return 'blue';
+                return 'blue'; // 3d bounding box
             });
             this.scatterGLHasInitialized = true;
         }
 
-        const deltaVolume = (handBox && faceBox)
-            ? handBox.getIntersectionVolume(faceBox)
-            : 0.0;
-        const octree_distance_threshold = 35; // TODO: maybe turn this into a variable set by GUI?
-        const minDistance = getShortestDistance(handPoints, facePoints, octree_distance_threshold);
         let detected = false;
         if (handBox && faceBox && deltaVolume > 0 && !!minDistance) {
             // Only if the two bounding boxes intersect
