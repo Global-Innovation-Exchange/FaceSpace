@@ -9,6 +9,8 @@ import { sleep } from './utils';
 import { fingerLookup, drawFacePredictions, drawHandPredictions } from './draw';
 import { BoundingBox, boxLookup } from './box';
 
+var createOctree = require('yaot'); // from https://github.com/anvaka/yaot
+
 function getFacePoints(predictions) {
     const pointsData = predictions.map(prediction =>
         prediction.scaledMesh.map(point => [-point[0], -point[1], -point[2]]));
@@ -21,24 +23,39 @@ function getHandPoints(predictions) {
     return pointsData.flat();
 }
 
-function getShortestDistance(points1, points2) {
-    // TODO better algorithm
-    let shortestDistance = undefined;
-    for (let i = 0; i < points1.length; i++) {
-        for (let j = 0; j < points2.length; j++) {
-            const p1 = points1[i];
-            const p2 = points2[j];
-            const x = p1[0] - p2[0];
-            const y = p1[1] - p2[1];
-            const z = p1[2] - p2[2];
-            const d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
-            if (shortestDistance === undefined || d < shortestDistance.d) {
-                shortestDistance = { x, y, z, d };
+function getShortestDistance(handPoints, facePoints, distance_threshold) {
+    if (handPoints.length != 0 || handPoints.length != 0) { // if there's no hand or face, there's no need to build the tree
+        const tree = createOctree();
+        let octree_points = [];
+
+        for (let i = 0; i < facePoints.length; i++) {
+            octree_points.push(facePoints[i][0], facePoints[i][1], facePoints[i][2]);
+        }
+        tree.init(octree_points);
+
+        let min_distance = undefined;
+        for (let hand_point_idx = 0; hand_point_idx < handPoints.length; hand_point_idx++) {
+            const hand_point = handPoints[hand_point_idx];
+            const matches = tree.intersectSphere(hand_point[0], hand_point[1], hand_point[2], distance_threshold);
+            if (matches.length != 0) {
+                for (let j = 0; j < matches.length; j++) {
+                    const face_point_idx = matches[j] / 3; // tree.intersectSphere returns indexes at octree_points
+                    const face_point = facePoints[face_point_idx];
+                    const diff_x = hand_point[0] - face_point[0];
+                    const diff_y = hand_point[1] - face_point[1];
+                    const diff_z = hand_point[2] - face_point[2];
+                    const distance = Math.sqrt(Math.pow(diff_x, 2) + Math.pow(diff_y, 2) + Math.pow(diff_z, 2));
+                    if (min_distance === undefined || distance < min_distance.distance) {
+                        min_distance = { diff_x, diff_y, diff_z, distance, hand_point_idx, face_point_idx };
+                    }
+                }
             }
         }
+        return min_distance;
     }
-    return shortestDistance;
+    return undefined;
 }
+
 const defaultParams = {
     renderPointCloud: true,
     renderCanvas: true,
@@ -241,18 +258,18 @@ export default class Detector {
         const deltaVolume = (handBox && faceBox)
             ? handBox.getIntersectionVolume(faceBox)
             : 0.0;
-        const minDistance = getShortestDistance(handPoints, facePoints);
-
+        const octree_distance_threshold = 35; // TODO: maybe turn this into a variable set by GUI?
+        const minDistance = getShortestDistance(handPoints, facePoints, octree_distance_threshold);
         let detected = false;
         if (handBox && faceBox && deltaVolume > 0 && !!minDistance) {
             // Only if the two bounding boxes intersect
             if (faceBox.xMin < handBox.xMin && handBox.xMax < faceBox.xMax) {
                 // The hand bounding box is with in the face box,
                 // which means the hand is in front of the face
-                detected = minDistance.d < 10;
+                detected = minDistance.distance < 10;
             } else {
                 // The hand is on the side
-                detected = minDistance.d < 30;
+                detected = minDistance.distance < 30;
             }
         }
 

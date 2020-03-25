@@ -59,18 +59,18 @@ async function main() {
     onDetected: () => { touchCounter++; },
     onRender: () => { stats.begin(); },
     onRendered: (result) => {
-      const d = result.minDistance;
+      const minDistance = result.minDistance;
       const handBox = result.handBox;
       const faceBox = result.faceBox;
       const deltaVolume = result.deltaVolume;
 
-      document.querySelector('#distance').innerText = d
-        ? `Closest ||p||: ${f(d.d)}, Δx: ${f(d.x)}, Δy: ${f(d.y)}, Δz: ${f(d.z)}`
+      document.querySelector('#distance').innerText = minDistance
+        ? `Closest ||p||: ${f(minDistance.distance)}, Δx: ${f(minDistance.diff_x)}, Δy: ${f(minDistance.diff_y)}, Δz: ${f(minDistance.diff_z)}`
         : `Closest ||p||: Undefined`;
 
       document.querySelector('#intersection').innerText =
         `Volume intersected: ${deltaVolume}`;
-      document.querySelector('#deltaCenter').innerText = d
+      document.querySelector('#deltaCenter').innerText = minDistance
         ? `Center bounding box ||p||: ${f(Math.sqrt(Math.pow(handBox.xCenter - faceBox.xCenter, 2) + Math.pow(handBox.yCenter - faceBox.yCenter, 2) + Math.pow(handBox.zCenter - faceBox.zCenter, 2)))} Δx:${f(handBox.xCenter - faceBox.xCenter)} Δy:${f(handBox.yCenter - faceBox.yCenter)} Δz:${f(handBox.zCenter - faceBox.zCenter)}`
         : `Center bounding box: Undefined`;
 
