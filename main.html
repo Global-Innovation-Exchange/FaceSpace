@@ -21,19 +21,21 @@
   </head>
   <body>
     <div class="container">
-      <h1>Hello World!</h1>
+      <h3>Don't Touch Your Face Challenge</h3>
       <div class="row">
         <div class="col-md-6" style="background-color:yellow;">
-          <div class="canvas-wrapper">
-            <canvas id="output"></canvas>
-            <video id="video" playsinline style="
-            -webkit-transform: scaleX(-1);
-            transform: scaleX(-1);
-            visibility: hidden;
-            width: auto;
-            height: auto;
-            ">
-            </video>
+          <div class="detector-canvas-wrapper">
+            <div id='face-mesh-video'>
+              <canvas id="output"></canvas>
+              <video id="video" playsinline style="
+              -webkit-transform: scaleX(-1);
+              transform: scaleX(-1);
+              visibility: hidden;
+              width: auto;
+              height: auto;
+              ">
+              </video>
+            </div>
           </div>
         </div>
         <div class="col-md-6" style="background-color:pink;">
@@ -42,17 +44,21 @@
         </div>
       </div>
       <div class="row" style="background-color:green;">
-        <div id="main">
-          <pre id="distance"></pre>
-          <pre id="intersection"></pre>
-          <pre id="deltaCenter"></pre>
-          <pre id="detection"></pre>
-          
+        <div class="col-md-4" style="background-color:yellow;">
+          <p> You've touched your face </p>
+          <h1 id = "totalCount"> 0 </h1>
+          <p> times! </p>
+        </div>
+        <div class="col-md-8" style="background-color:yellow;">
+          <div id="main">
+            <pre id="distance"></pre>
+            <pre id="intersection"></pre>
+            <pre id="deltaCenter"></pre>
+            <pre id="detection"></pre>
+          </div>
         </div>
         <!-- Touch Count -->
-        <p> You've touched your face </p>
-        <h1 id = "totalCount"> 10 </h1>
-        <p id="times"> times </p>
+
       </div>
     </div>
     <!-- Optional JavaScript -->

@@ -47,13 +47,14 @@ async function main() {
   document.getElementById('main').appendChild(stats.dom);
   
   let touchCounter = 0;
+  let totalTouches = 0;
   const mobile = isMobile();
   const detectorParams = {
     renderPointCloud: !mobile,
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
     timeout: 500,
-    renderPointCloud: true,
+    // renderPointCloud: true, //don't render on mobile
     renderCanvas: true,
     renderFaceMesh: true,
     onDetected: () => { touchCounter++; },
@@ -84,6 +85,9 @@ async function main() {
   setInterval(() => {
     if (touchCounter > 2 && Notification.permission === 'granted') {
       new Notification('You touched your face!');
+      totalTouches++;
+      document.querySelector('#totalCount').innerText = totalTouches;
+      touchCounter = 0;
     }
     touchCounter = 0;
   }, 5 * 1000);
