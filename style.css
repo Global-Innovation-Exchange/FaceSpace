@@ -1,15 +1,15 @@
-.canvas-wrapper, #scatter-gl-container {
+.detector-canvas-wrapper, .detector-scatter-gl-container, #detection-container {
     display: inline-block;
     vertical-align: top;
   }
 
-  #scatter-gl-container {
+  #detection-container {
     border: solid 1px black;
     position: relative;
-  }
+  } */
 
   /* center the canvas within its wrapper */
-  #scatter-gl-container canvas {
+  #detection-container canvas {
     transform: translate3d(-50%, -50%, 0);
     left: 50%;
     top: 50%;
@@ -57,7 +57,7 @@ body, html{
 }
 
 
-#CoutingInTotal{
+#totalCount{
   display: inline-block;
   font-size: 6em;
   margin-block-start: 0em;
@@ -67,12 +67,12 @@ body, html{
   font-weight: bold;
 }
 
-#times{
+/* #times{
   display: inline-block;
   margin-left: 10px;
-}
+} */
 
-.columnA, .columnB{ 
+/* .columnA, .columnB{ 
   float: left;  
   text-align:justify; 
   padding: 15px; 
@@ -85,9 +85,9 @@ body, html{
 .columnB{
   width: 40%;
   padding-top: 40px;
-}
+} */
 
-.banner{
+/* .banner{
   margin: 0px;
   padding: 5% 10% 10% 10%;
   background-color: #FF9500; 
@@ -95,9 +95,9 @@ body, html{
   position: relative;
   height: 70vh;
   text-align: center;
-}
+} */
 
-h1{
+/* h1{
   display: block;
   font-size: 4em;
   margin-block-start: 0.83em;
@@ -105,14 +105,4 @@ h1{
   margin-inline-start: 0px;
   margin-inline-end: 0px;
   font-weight: bold;
-}
-
-.content{
-  padding: 20px;
-}
-
-.content-container{
-  max-width: 800px;
-  margin: 0 auto;
-  line-height: 1.5;
-}
+} */
