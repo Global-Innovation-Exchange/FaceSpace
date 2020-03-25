@@ -2,6 +2,9 @@
 import * as facemesh from '@tensorflow-models/facemesh';
 import * as handpose from '@tensorflow-models/handpose';
 import * as tf from '@tensorflow/tfjs-core';
+// Use npm package once https://github.com/PAIR-code/scatter-gl/issues/36 is fixed
+// import { ScatterGL } from 'scatter-gl';
+
 import { sleep } from './utils';
 import { fingerLookup, drawFacePredictions, drawHandPredictions } from './draw';
 import { BoundingBox, boxLookup } from './box';
