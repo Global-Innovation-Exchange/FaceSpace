@@ -80,9 +80,9 @@ async function main() {
     }
   };
 
-  // Check every 5 secs with at least two touches
+  // Check every 5 secs with at least three touches
   setInterval(() => {
-    if (touchCounter > 2 && Notification.permission === "granted") {
+    if (touchCounter > 2 && Notification.permission === 'granted') {
       new Notification('You touched your face!');
     }
     touchCounter = 0;
