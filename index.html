@@ -20,18 +20,18 @@ limitations under the License.
 <!-- Use the version in the handpose until the fix in https://github.com/PAIR-code/scatter-gl/pull/26 in released -->
 <script src="https://storage.googleapis.com/learnjs-data/handtrack_staging/scatter-gl.js"></script>
 <style>
-  .canvas-wrapper, #scatter-gl-container {
+  .detector-canvas-wrapper, .detector-scatter-gl-container {
     display: inline-block;
     vertical-align: top;
   }
 
-  #scatter-gl-container {
+  .detector-scatter-gl-container {
     border: solid 1px black;
     position: relative;
   }
 
   /* center the canvas within its wrapper */
-  #scatter-gl-container canvas {
+  .detector-scatter-gl-container canvas {
     transform: translate3d(-50%, -50%, 0);
     left: 50%;
     top: 50%;
@@ -40,12 +40,12 @@ limitations under the License.
 </style>
 </head>
 <body>
+  <div id='test'></div>
   <div id="main">
     <div class="container">
       <div class="canvas-wrapper">
         <canvas id="output"></canvas>
         <video id="video" playsinline style="
-          -webkit-transform: scaleX(-1);
           transform: scaleX(-1);
           visibility: hidden;
           width: auto;
