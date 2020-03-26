@@ -102,6 +102,10 @@ async function main() {
       totalTouches++;
       document.querySelector('#totalCount').innerText = totalTouches;
       window.document.title = '😱'
+      // TODO: add log! stretch: take canvas snapshots for each...
+      let today = new Date();
+      let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      console.log(time)
       faceAlreadyTouched = true;
     }
     if (!faceCurrentlyTouched) {
@@ -129,5 +133,7 @@ async function main() {
   await detector.load();
   detector.start();
 }
+
+$('#exampleModalLong').modal('show');
 
 main();
