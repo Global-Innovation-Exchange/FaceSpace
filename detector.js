@@ -40,9 +40,9 @@ function getShortestDistance(points1, points2) {
     return shortestDistance;
 }
 const defaultParams = {
-    renderPointCloud: true,
+    renderPointCloud: false,
     renderCanvas: true,
-    renderFaceMesh: true,
+    renderFaceMesh: false,
     width: undefined,
     height: undefined,
     maxFaces: 1,

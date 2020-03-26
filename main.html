@@ -48,17 +48,7 @@
   </div>
 </div>
 
-    <div class="container" id="loading-header">
-      
-      <div class="row">
-        <div class="col-md-12">
-          <!-- <div class="col-md-12" > -->
-            <div class="text-center">
-              <h3>👨 Don't Touch Your Face 👩‍</h3>
-            </div>
-        </div>
-      </div>
-    </div>
+
 
     <div class="container d-flex justify-content-center h-100" id="loading-animation">
       <div class="row justify-content-center align-self-center">
@@ -71,46 +61,57 @@
       <div class="row">
         <div class="col-md-12">
           <!-- <div class="col-md-12" > -->
-            <div class="text-center">
+            <div class="text-center" id="title">
               <h3>👨 Don't Touch Your Face 👩‍</h3>
                 <div class="alert alert-danger" id="face-touch-alert">
                   <strong>🤦‍♂️ You're touching your face! 🤦‍♀️</strong>
                 </div>
-          </div>
+            </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
           <div class="d-flex justify-content-center">
-            <!-- <span class="align-middle">You've touched your</span> -->
-            <!-- <p> You've touched your face </p> -->
             <h1 id = "totalCount"> 0 </h1>
-            <!-- <p> times! </p> -->
           </div>
         </div>
       </div>
       <div class="row">
+        <div class="col-md-12">
+          <!-- <div class="col-md-12" > -->
+            <div class="text-center">
+              <p id ="timesTouchedText">times touched</p>
+            </div>
+        </div>
+      </div>
+      <div class="row">
         <!-- <div class="col-md-6" style="background-color:yellow;"> -->
-        <div class="col-md-6">
+        <!-- <div class="col-md-6"> -->
+        <div class="col-md-12">
+          <div class="d-flex justify-content-center">
           <div class="detector-canvas-wrapper">
-            <div id='face-mesh-video'>
-              <canvas id="output"></canvas>
-              <video id="video" playsinline style="
-              -webkit-transform: scaleX(-1);
-              transform: scaleX(-1);
-              visibility: hidden;
-              width: auto;
-              height: auto;
-              ">
-              </video>
+              <div id='face-mesh-video'>
+                <canvas id="output"></canvas>
+                <video id="video" playsinline style="
+                -webkit-transform: scaleX(-1);
+                transform: scaleX(-1);
+                visibility: hidden;
+                width: auto;
+                height: auto;
+                ">
+                </video>
+                <!-- these are copied here to ensure they exist -->
+                <div id="detector-container"></div>
+                <div id="scatter-gl-container"></div>
+              </div>
             </div>
           </div>
         </div>
         <!-- <div class="col-md-6" style="background-color:pink;"> -->
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
           <div id="detector-container"></div>
           <div id="scatter-gl-container"></div>
-        </div>
+        </div> -->
       </div>
       <!-- <div class="row" style="background-color:green;"> -->
       <!-- <div class="row"> -->
