@@ -48,12 +48,14 @@ async function main() {
   
   let touchCounter = 0;
   let totalTouches = 0;
+  let faceAlreadyTouched = false;
+  let faceCurrentlyTouched = false;
   const mobile = isMobile();
   const detectorParams = {
     renderPointCloud: !mobile,
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
-    timeout: 500,
+    timeout: 300,
     // renderPointCloud: true, //don't render on mobile
     renderCanvas: true,
     renderFaceMesh: true,
@@ -77,20 +79,24 @@ async function main() {
 
       document.querySelector('#detection').innerText =
         `Detection: ${result.detected ? 'Yes' : 'No'}`;
+      faceCurrentlyTouched = result.detected;
       stats.end();
     }
   };
 
-  // Check every 5 secs with at least three touches
+  // Check every second with at least three touches
   setInterval(() => {
-    if (touchCounter > 2 && Notification.permission === 'granted') {
+    if (touchCounter > 2 && Notification.permission === 'granted' && !faceAlreadyTouched) {
       new Notification('You touched your face!');
       totalTouches++;
       document.querySelector('#totalCount').innerText = totalTouches;
-      touchCounter = 0;
+      faceAlreadyTouched = true;
+    }
+    if (!faceCurrentlyTouched) {
+      faceAlreadyTouched = false;
     }
     touchCounter = 0;
-  }, 5 * 1000);
+  }, 1000);
 
   const detector = new Detector(document.getElementById('detector-container'), detectorParams);
 
@@ -101,7 +107,7 @@ async function main() {
     triangulateMesh: detectorParams.renderFaceMesh,
   };
   const gui = new dat.GUI();
-  gui.add(state, 'timeout', 0, 2000).onChange((value) => { detector.update({ timeout: value }); });
+  gui.add(state, 'timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
   gui.add(state, 'renderPointCloud').onChange((value) => { detector.update({ renderPointCloud: value }); });
   gui.add(state, 'renderCanvas').onChange((value) => { detector.update({ renderCanvas: value }); });
   gui.add(state, 'triangulateMesh').onChange((value) => { detector.update({ renderFaceMesh: value }); });
