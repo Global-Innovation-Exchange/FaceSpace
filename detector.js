@@ -46,7 +46,7 @@ const defaultParams = {
     width: undefined,
     height: undefined,
     maxFaces: 1,
-    timeout: 500,
+    timeout: 300,
     backend: 'webgl',
     onRender: () => { },
     onRendered: () => { },
@@ -254,7 +254,8 @@ export default class Detector {
             if (faceBox.xMin < handBox.xMin && handBox.xMax < faceBox.xMax) {
                 // The hand bounding box is with in the face box,
                 // which means the hand is in front of the face
-                detected = minDistance.d < 10;
+                // detected = minDistance.d < 10;
+                detected = minDistance.d < 25;
             } else {
                 // The hand is on the side
                 detected = minDistance.d < 30;
