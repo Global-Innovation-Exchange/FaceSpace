@@ -37,11 +37,11 @@ function f(d) {
   }
   return str;
 }
-
+// TODO: store this state in a better place
+var loading = true
 async function main() {
   // Request permission
   await Notification.requestPermission();
-
   const stats = new Stats();
   stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.getElementById('main').appendChild(stats.dom);
@@ -60,7 +60,17 @@ async function main() {
     renderCanvas: true,
     renderFaceMesh: true,
     onDetected: () => { touchCounter++; },
-    onRender: () => { stats.begin(); },
+    onRender: () => { 
+      stats.begin();
+      // clearInterval(loadingAnimation);
+      if (loading){
+        let el = document.getElementById('loading-header');
+        el.parentNode.removeChild(el);
+        el = document.getElementById('loading-animation');
+        el.parentNode.removeChild(el);
+        loading = false;
+      }
+    },
     onRendered: (result) => {
       const d = result.minDistance;
       const handBox = result.handBox;
@@ -86,17 +96,28 @@ async function main() {
 
   // Check every second with at least three touches
   setInterval(() => {
-    if (touchCounter > 2 && Notification.permission === 'granted' && !faceAlreadyTouched) {
-      new Notification('You touched your face!');
+    if (touchCounter >= 2 && Notification.permission === 'granted' && !faceAlreadyTouched) {
+      new Notification('You touched your face! 😱');
       totalTouches++;
       document.querySelector('#totalCount').innerText = totalTouches;
+      window.document.title = '😱'
       faceAlreadyTouched = true;
     }
     if (!faceCurrentlyTouched) {
+      window.document.title = '☺️'
       faceAlreadyTouched = false;
     }
     touchCounter = 0;
   }, 1000);
+
+  // Check loading status
+  function loadingAnimation(){   
+
+  
+    while(!loaded){
+       clearInterval(loaded);
+    }
+  }
 
   const detector = new Detector(document.getElementById('detector-container'), detectorParams);
 

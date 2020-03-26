@@ -17,13 +17,50 @@
     <script src="https://storage.googleapis.com/learnjs-data/handtrack_staging/scatter-gl.js"></script>
 
     <!-- <script src="function.js"></script> -->
-    <title>Don't Touch Your Face Challenge</title>
+    <title>☺️</title>
   </head>
   <body>
-    <div class="container">
-      <h3>Don't Touch Your Face Challenge</h3>
+    <div class="container" id="loading-header">
+      
       <div class="row">
-        <div class="col-md-6" style="background-color:yellow;">
+        <div class="col-md-12">
+          <!-- <div class="col-md-12" > -->
+            <div class="text-center">
+              <h3>👨 Don't Touch Your Face 👩‍</h3>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container d-flex justify-content-center h-100" id="loading-animation">
+      <div class="row justify-content-center align-self-center">
+        <div class="spinner-border" role="status"></div>
+        <!-- <strong>Loading!</strong> -->
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+        <!-- <div class="col-md-12" > -->
+          <div class="text-center">
+            <h3>👨 Don't Touch Your Face 👩‍</h3>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="d-flex justify-content-center">
+            <!-- <span class="align-middle">You've touched your</span> -->
+            <!-- <p> You've touched your face </p> -->
+            <h1 id = "totalCount"> 0 </h1>
+            <!-- <p> times! </p> -->
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <!-- <div class="col-md-6" style="background-color:yellow;"> -->
+        <div class="col-md-6">
           <div class="detector-canvas-wrapper">
             <div id='face-mesh-video'>
               <canvas id="output"></canvas>
@@ -38,18 +75,19 @@
             </div>
           </div>
         </div>
-        <div class="col-md-6" style="background-color:pink;">
+        <!-- <div class="col-md-6" style="background-color:pink;"> -->
+        <div class="col-md-6">
           <div id="detector-container"></div>
           <div id="scatter-gl-container"></div>
         </div>
       </div>
-      <div class="row" style="background-color:green;">
-        <div class="col-md-4" style="background-color:yellow;">
-          <p> You've touched your face </p>
-          <h1 id = "totalCount"> 0 </h1>
-          <p> times! </p>
-        </div>
-        <div class="col-md-8" style="background-color:yellow;">
+      <!-- <div class="row" style="background-color:green;"> -->
+      <!-- <div class="row"> -->
+        <!-- <div class="col-md-4" style="background-color:yellow;"> -->
+
+      <div class="row">
+        <!-- <div class="col-md-8" style="background-color:yellow;"> -->
+        <div class="col-md-6">
           <div id="main">
             <pre id="distance"></pre>
             <pre id="intersection"></pre>
