@@ -8,8 +8,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { sleep } from './utils';
 import { fingerLookup, drawFacePredictions, drawHandPredictions } from './draw';
 import { BoundingBox, boxLookup } from './box';
-
-var createOctree = require('yaot'); // from https://github.com/anvaka/yaot
+import createOctree from 'yaot'; // from https://github.com/anvaka/yaot
 
 function getFacePoints(predictions) {
     const pointsData = predictions.map(prediction =>
@@ -23,36 +22,36 @@ function getHandPoints(predictions) {
     return pointsData.flat();
 }
 
-function getShortestDistance(handPoints, facePoints, distance_threshold) {
-    let min_distance = undefined;
+function getShortestDistance(handPoints, facePoints, distanceThreshold) {
+    let minDistance = undefined;
     if (handPoints.length != 0 || handPoints.length != 0) { // if there's no hand or face, there's no need to build the tree
         const tree = createOctree();
-        let octree_points = [];
+        let octreePoints = [];
 
         for (let i = 0; i < facePoints.length; i++) {
-            octree_points.push(facePoints[i][0], facePoints[i][1], facePoints[i][2]);
+            octreePoints.push(facePoints[i][0], facePoints[i][1], facePoints[i][2]);
         }
-        tree.init(octree_points);
+        tree.init(octreePoints);
 
-        for (let hand_point_idx = 0; hand_point_idx < handPoints.length; hand_point_idx++) {
-            const hand_point = handPoints[hand_point_idx];
-            const matches = tree.intersectSphere(hand_point[0], hand_point[1], hand_point[2], distance_threshold);
+        for (let handPointIndex = 0; handPointIndex < handPoints.length; handPointIndex++) {
+            const handPoint = handPoints[handPointIndex];
+            const matches = tree.intersectSphere(handPoint[0], handPoint[1], handPoint[2], distanceThreshold);
             if (matches.length != 0) {
                 for (let j = 0; j < matches.length; j++) {
-                    const face_point_idx = matches[j] / 3; // tree.intersectSphere returns indexes at octree_points
+                    const face_point_idx = matches[j] / 3; // tree.intersectSphere returns indexes at octreePoints
                     const face_point = facePoints[face_point_idx];
-                    const diff_x = hand_point[0] - face_point[0];
-                    const diff_y = hand_point[1] - face_point[1];
-                    const diff_z = hand_point[2] - face_point[2];
+                    const diff_x = handPoint[0] - face_point[0];
+                    const diff_y = handPoint[1] - face_point[1];
+                    const diff_z = handPoint[2] - face_point[2];
                     const distance = Math.sqrt(Math.pow(diff_x, 2) + Math.pow(diff_y, 2) + Math.pow(diff_z, 2));
-                    if (min_distance === undefined || distance < min_distance.distance) {
-                        min_distance = { diff_x, diff_y, diff_z, distance, hand_point_idx, face_point_idx };
+                    if (minDistance === undefined || distance < minDistance.distance) {
+                        minDistance = { diff_x, diff_y, diff_z, distance, handPointIndex, face_point_idx };
                     }
                 }
             }
         }
     }
-    return min_distance;
+    return minDistance;
 }
 
 const defaultParams = {
@@ -270,7 +269,7 @@ export default class Detector {
             this.scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
             this.scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
                 if (minDistance && 
-                    (i == handPoints.length + minDistance.face_point_idx || i == minDistance.hand_point_idx)) {
+                    (i == handPoints.length + minDistance.face_point_idx || i == minDistance.handPointIndex)) {
                     return 'red';
                 }
 
