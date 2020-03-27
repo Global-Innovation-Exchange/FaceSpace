@@ -3,11 +3,12 @@
  */
 
 /* Links */
-a,
+/* TODO, make the links white again later */
+/* a,
 a:focus,
 a:hover {
   color: #fff;
-}
+} */
 
 /* Custom default button */
 .btn-secondary,
@@ -85,6 +86,16 @@ body {
   }
 }
 
+
+/* Modal */
+
+.modal-title {
+  color: #333;
+}
+
+.modal-body {
+  color: #333 !important;
+}
 
 /*
  * Cover

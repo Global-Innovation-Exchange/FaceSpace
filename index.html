@@ -40,18 +40,48 @@
     </div> -->
   </header>
 
+  <div class="modal fade" id="faq-modal" tabindex="-1" role="dialog" aria-labelledby="modal-faq" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <strong><p>How does this work under the hood?</p></strong>
+          <!-- <br> -->
+          <p>Using <a rel="noopener noreferrer" target="_blank" href="https://blog.tensorflow.org/2020/03/face-and-hand-tracking-in-browser-with-mediapipe-and-tensorflowjs.html" >Google's handpose and facemesh packages</a> (we combined the two), we're able to detect when you're touching your face based on the intersection of hand and face.</p> 
+          <hr>
+          <strong><p>What are its limitations?</p></strong>
+          <p>The models are relatively new and provide great overall accuracy, but there are a couple drawbacks and you may need to tweak a couple things for the best experience:</p>
+          
+          <ul>
+            <li class="text-left">Handpose currently only supports recognizing a single hand.</li>
+            <li class="text-left">There can be false positive notifications if a hand is detected when one isn't actually present.</li>
+            <li class="text-left">As a camera is 2D there can also be false positives present when placing the hand in front of the face (but not touching) in 3D space</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal"></button> -->
+          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <main role="main" class="inner cover">
     <h1 class="cover-heading">👨 Don't Touch Your Face 👩‍</h1>
     <p class="lead"></br>To protect yourself during the outbreak of COVID-19, this app helps you keeps your hands off your face using your webcam and machine learning. All face and hand data is processed and stored locally.</p>
     <p class="lead">
       <a href="./main.html" class="btn btn-lg btn-secondary">Start</a>
-      <a href="./main.html" class="btn btn-lg btn-secondary">FAQ</a>
+      <a href="" type="button" data-toggle="modal" data-target="#faq-modal"class="btn btn-lg btn-secondary">FAQ</a>
     </p>
   </main>
 
   <footer class="mastfoot mt-auto">
     <div class="inner">
-      <p>Made by Steven Guh, Cody Gagnon, Ke Wang, and Wenbo Zhong of </br><a href="https://gixnetwork.org/" target='_blank'>University of Washington's GIX Program</a>.</p>
+      <p>Made by Steven Guh, Cody Gagnon, Ke Wang, and Wenbo Zhong of </br><a rel="noopener noreferrer" target="_blank" href="https://gixnetwork.org/" target='_blank'>University of Washington's GIX Program</a>.</p>
     </div>
   </footer>
   </div>
