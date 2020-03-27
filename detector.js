@@ -155,6 +155,9 @@ export default class Detector {
     }
 
     clearCanvas() {
+        // Clear the canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        // Draw the video on to the canvas
         this.ctx.drawImage(
             this.video,
             0,
@@ -180,8 +183,8 @@ export default class Detector {
         ]);
         videoPixels.dispose();
 
-        this.clearCanvas();
         if (this.params.renderCanvas) {
+            this.clearCanvas();
             drawFacePredictions(this.ctx, fp, this.params.renderFaceMesh);
             drawHandPredictions(this.ctx, hp);
         }
