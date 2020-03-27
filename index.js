@@ -49,6 +49,7 @@ async function main() {
     $("#timesTouchedText").hide();
     $("#totalCount").hide();
     $("#title").hide();
+    $("#footer").hide();
   }
   let touchCounter = 0;
   let totalTouches = 0;
@@ -73,6 +74,7 @@ async function main() {
         $("#timesTouchedText").show();
         $("#totalCount").show();
         $("#title").show();
+        $("#footer").show();
         let el = document.getElementById('loading-animation');
         el.parentNode.removeChild(el);
         // Copied here to ensure it only shows on load
