@@ -189,7 +189,6 @@ export default class Detector {
         const facePoints = getFacePoints(fp);
         let handBox = BoundingBox.createFromPoints(handPoints);
         const faceBox = BoundingBox.createFromPoints(facePoints, 20);
-        const handBoxPoints = handBox ? handBox.toPoints() : [];
         const faceBoxPoints = faceBox ? faceBox.toPoints() : [];
 
         // rescale hand z axis according to center of the face
@@ -214,6 +213,7 @@ export default class Detector {
 
         // regenerate hand bbox after scaling z axis
         handBox = BoundingBox.createFromPoints(handPoints);
+        const handBoxPoints = handBox ? handBox.toPoints() : [];
 
         const deltaVolume = (handBox && faceBox)
             ? handBox.getIntersectionVolume(faceBox)
