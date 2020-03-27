@@ -173,10 +173,13 @@ export default class Detector {
             throw new Error('Run load() frist');
         }
         this.params.onRender();
+        const videoPixels = tf.browser.fromPixels(this.video);
         const [fp, hp] = await Promise.all([
-            this.faceModel.estimateFaces(this.video),
-            this.handModel.estimateHands(this.video),
+            this.faceModel.estimateFaces(videoPixels),
+            this.handModel.estimateHands(videoPixels),
         ]);
+        videoPixels.dispose();
+
         this.clearCanvas();
         if (this.params.renderCanvas) {
             drawFacePredictions(this.ctx, fp, this.params.renderFaceMesh);
