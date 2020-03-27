@@ -16,6 +16,7 @@
  * =============================================================================
  */
 
+import * as workerTimers from 'worker-timers';
 import Stats from 'stats.js';
 import Detector from './detector';
 
@@ -81,7 +82,7 @@ async function main() {
   };
 
   // Check every 5 secs with at least three touches
-  setInterval(() => {
+  workerTimers.setInterval(() => {
     if (touchCounter > 2 && Notification.permission === 'granted') {
       new Notification('You touched your face!');
     }

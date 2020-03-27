@@ -13,7 +13,8 @@
     "@tensorflow-models/handpose": "^0.0.3",
     "@tensorflow/tfjs-converter": "^1.6.1",
     "@tensorflow/tfjs-core": "^1.6.1",
-    "stats.js": "^0.17.0"
+    "stats.js": "^0.17.0",
+    "worker-timers": "^6.0.6"
   },
   "scripts": {
     "watch": "cross-env NODE_ENV=development parcel index.html --no-hmr --target browser",
