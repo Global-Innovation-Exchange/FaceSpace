@@ -69,9 +69,10 @@ export default class Detector {
         canvas.className = 'detector-overlay';
 
         const video = document.createElement('video');
-        video.setAttribute('playinline', 'playinline');
+        video.setAttribute('playinline', '');
+        video.setAttribute('muted', '');
         video.style = `transform: scaleX(-1);
-            visibility: hidden;
+            display: none;
             width: auto;
             height: auto;`;
 
