@@ -123,6 +123,11 @@ export default class Detector {
             tf.ready(),
         ]);
         this.video.play();
+        // Safari will auto pause if the page goes into background tab
+        // This is a fix to keep the video playing in background
+        this.video.onpause = () => {
+            this.video.play();
+        };
         // Get the actual initialized size
         const videoWidth = this.video.videoWidth;
         const videoHeight = this.video.videoHeight;
@@ -160,6 +165,9 @@ export default class Detector {
     }
 
     clearCanvas() {
+        // Clear the canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        // Draw the video on to the canvas
         this.ctx.drawImage(
             this.video,
             0,
@@ -177,13 +185,20 @@ export default class Detector {
         if (!this.faceModel || !this.handModel) {
             throw new Error('Run load() frist');
         }
+
+        // Skip if the video is paused
+        if (this.video.paused) return;
+
         this.params.onRender();
+        const videoPixels = tf.browser.fromPixels(this.video);
         const [fp, hp] = await Promise.all([
-            this.faceModel.estimateFaces(this.video),
-            this.handModel.estimateHands(this.video),
+            this.faceModel.estimateFaces(videoPixels),
+            this.handModel.estimateHands(videoPixels),
         ]);
-        this.clearCanvas();
+        videoPixels.dispose();
+
         if (this.params.renderCanvas) {
+            this.clearCanvas();
             drawFacePredictions(this.ctx, fp, this.params.renderFaceMesh);
             drawHandPredictions(this.ctx, hp);
         }
