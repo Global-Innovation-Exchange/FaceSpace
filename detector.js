@@ -28,12 +28,12 @@ function getShortestDistance(handPoints, facePoints) {
             const handPoint = handPoints[handPointIndex];
             for (let facePointIndex = 0; facePointIndex < facePoints.length; facePointIndex++) {
                 const facePoint = facePoints[facePointIndex];
-                const diff_x = handPoint[0] - facePoint[0];
-                const diff_y = handPoint[1] - facePoint[1];
-                const diff_z = handPoint[2] - facePoint[2];
-                const distance = Math.sqrt(Math.pow(diff_x, 2) + Math.pow(diff_y, 2) + Math.pow(diff_z, 2));
+                const diffX = handPoint[0] - facePoint[0];
+                const diffY = handPoint[1] - facePoint[1];
+                const diffZ = handPoint[2] - facePoint[2];
+                const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2) + Math.pow(diffZ, 2));
                 if (minDistance === undefined || distance < minDistance.distance) {
-                    minDistance = { diff_x, diff_y, diff_z, distance, handPointIndex, facePointIndex };
+                    minDistance = { diffX, diffY, diffZ, distance, handPointIndex, facePointIndex };
                 }
             }
         }
@@ -188,25 +188,26 @@ export default class Detector {
         const handPoints = getHandPoints(hp);
         const facePoints = getFacePoints(fp);
         let handBox = BoundingBox.createFromPoints(handPoints);
-        const faceBox = BoundingBox.createFromPoints(facePoints, 20);
+        const faceBox = BoundingBox.createFromPoints(facePoints, 10);
         const faceBoxPoints = faceBox ? faceBox.toPoints() : [];
+        let isInFrontOfFace = false;
 
         // rescale hand z axis according to center of the face
         if (handBox && faceBox) {
-            const face_half_width = (faceBox.xMax - faceBox.xMin) / 2;
-            const face_center_x = faceBox.xMin + face_half_width;
-            let hand_x_avg = 0;
+            const faceHalfWidth = (faceBox.xMax - faceBox.xMin) / 2;
+            const face_center_x = faceBox.xMin + faceHalfWidth;
+            let handXAvg = 0;
             for (let i = 0; i < handPoints.length; i++) {
-                hand_x_avg += handPoints[i][0];
+                handXAvg += handPoints[i][0];
             }
-            hand_x_avg /= handPoints.length;
-            const distance_to_face_center_x = Math.abs(hand_x_avg - face_center_x);
-            if (hand_x_avg > faceBox.xMin && hand_x_avg < faceBox.xMax) { // hand in front of the face
-                const is_far_from_center = (face_half_width - distance_to_face_center_x) / face_half_width;
-                const scale_factor = Math.atan(is_far_from_center * 5) / (Math.PI / 2); // from 1 to 0 depends on how far from face center x
+            handXAvg /= handPoints.length;
+            const distanceToFaceCenterX = Math.abs(handXAvg - face_center_x);
+            if (handXAvg > faceBox.xMin && handXAvg < faceBox.xMax) { // hand in front of the face
+                isInFrontOfFace = true;
+                const isFarFromCenter = (faceHalfWidth - distanceToFaceCenterX) / faceHalfWidth;  // from 1 to 0 depends on how far from face center x
+                const scaleFactor = (Math.atan(isFarFromCenter * 32 - 25) / (Math.PI / 2) + 1) / 2; 
                 for (let i = 0; i < handPoints.length; i++) {
-                    handPoints[i][2] = handPoints[i][2] + 50 * scale_factor;
-                    handPoints[i][2] = (handPoints[i][2] > 1) ? handPoints[i][2]*1.5 : handPoints[i][2];
+                    handPoints[i][2] = handPoints[i][2] + 35 * scaleFactor;
                 }
             }
         }
@@ -275,7 +276,14 @@ export default class Detector {
 
         let detected = false;
         if (handBox && faceBox && !!minDistance) {
-            detected = minDistance.distance < 20;
+            if (isInFrontOfFace) {
+                // The hand bounding box is with in the face box,
+                // which means the hand is in front of the face
+                detected = minDistance.distance < 10;
+            } else {
+                // The hand is on the side
+                detected = minDistance.distance < 30;
+            }
         }
 
         if (detected) this.params.onDetected();

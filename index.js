@@ -65,7 +65,7 @@ async function main() {
       const deltaVolume = result.deltaVolume;
 
       document.querySelector('#distance').innerText = minDistance
-        ? `Closest ||p||: ${f(minDistance.distance)}, Δx: ${f(minDistance.diff_x)}, Δy: ${f(minDistance.diff_y)}, Δz: ${f(minDistance.diff_z)}, Δdistance: ${f(minDistance.distance)}`
+        ? `Closest ||p||: ${f(minDistance.distance)}, Δx: ${f(minDistance.diffX)}, Δy: ${f(minDistance.diffY)}, Δz: ${f(minDistance.diffZ)}, Δdistance: ${f(minDistance.distance)}`
         : `Closest ||p||: Undefined`;
 
       document.querySelector('#intersection').innerText =
