@@ -127,6 +127,7 @@ async function main() {
       faceAlreadyTouched = false;
       $("#face-touch-alert").hide();
     }
+    touchCounter = 0;
   }, 1000); 
 
   const detector = new Detector(document.getElementById('detector-container'), detectorParams);
