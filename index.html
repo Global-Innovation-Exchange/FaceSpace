@@ -12,77 +12,62 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
     <title>👨 Don't Touch Your Face 👩‍</title>
-
-    <!-- Custom style -->
-    <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-        }
-      }
-    </style>
-    <link href="cover.css" rel="stylesheet">
+<style>
+  *{
+  font-family: Futura;
+  box-sizing: border-box;
+  }
+</style>
   </head>
   <body class="text-center">
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
-  <header class="masthead mb-auto">
-    <!-- <div class="inner">
-      <h3 class="masthead-brand">👨 Don't Touch Your Face 👩‍</h3>
-    </div> -->
-  </header>
 
-  <div class="modal fade" id="faq-modal" tabindex="-1" role="dialog" aria-labelledby="modal-faq" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <strong><p>How does this work under the hood?</p></strong>
-          <!-- <br> -->
-          <p>Using <a rel="noopener noreferrer" target="_blank" href="https://blog.tensorflow.org/2020/03/face-and-hand-tracking-in-browser-with-mediapipe-and-tensorflowjs.html" >Google's handpose and facemesh packages</a> (we combined the two), we're able to detect when you're touching your face based on the intersection of hand and face.</p> 
-          <hr>
-          <strong><p>What are its limitations?</p></strong>
-          <p>The models are relatively new and provide great overall accuracy, but there are a couple drawbacks and you may need to tweak a couple things for the best experience:</p>
-          
-          <ul>
-            <li class="text-left">Handpose currently only supports recognizing a single hand.</li>
-            <li class="text-left">There can be false positive notifications if a hand is detected when one isn't actually present.</li>
-            <li class="text-left">As a camera is 2D there can also be false positives present when placing the hand in front of the face (but not touching) in 3D space.</li>
-            <li class="text-left">For desktop notifications, please ensure that you have do not disturb turned off in your notification center!</li>
-          </ul>
-        </div>
-        <div class="modal-footer">
-          <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal"></button> -->
-          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-        </div>
-      </div>
+  <div class="container">
+    <div class="jumbotron" style="background-color: #FF9500;">
+      <h1>👨 Don't Touch Your Face 👩‍</h1> 
+      <p>To protect yourself during the outbreak of COVID-19, this app helps you keeps your hands off your face using your webcam and machine learning. We take your privacy very seriously. All of the camera data stays local and never leaves your computer. This app works locally in your browser.</p>
     </div>
   </div>
 
   <main role="main" class="inner cover">
-    <h1 class="cover-heading">👨 Don't Touch Your Face 👩‍</h1>
-    <p class="lead"></br>To protect yourself during the outbreak of COVID-19, this app helps you keeps your hands off your face using your webcam and machine learning. We take your privacy very seriously. All of the camera data stays local and never leaves your computer. This app works locally in your browser.</p>
+    <br>
     <p class="lead">
-      <a href="./main.html" class="btn btn-lg btn-secondary">Start</a>
-      <a href="" type="button" data-toggle="modal" data-target="#faq-modal"class="btn btn-lg btn-secondary">FAQ</a>
+      <a href="./main.html" class="btn btn-lg btn-primary">Start</a>
+      <!-- <a href="" type="button" data-toggle="modal" data-target="#faq-modal"class="btn btn-lg btn-secondary">FAQ</a> -->
     </p>
+    <br>
+    <h1 class="cover-heading">FAQ</h1>
+    <div class="row justify-content-center">
+      <strong><p>How does this work under the hood?</p></strong>
+    </div>
+
+    <div class="row justify-content-center">
+    <!-- <br> -->
+      <div class="col-md-6">
+        <p class="text-left">Using <a rel="noopener noreferrer" target="_blank" href="https://blog.tensorflow.org/2020/03/face-and-hand-tracking-in-browser-with-mediapipe-and-tensorflowjs.html" >Google's handpose and facemesh packages</a> (we combined the two), we're able to detect when you're touching your face based on the intersection of your hand and face.</p> 
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <strong><p>What are its limitations?</p></strong>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <p class="text-left">The models are relatively new and provide great overall accuracy, but there are a couple drawbacks and you may need to tweak a couple things for the best experience:</p>
+        <ul>
+          <li class="text-left">Handpose currently only supports recognizing a single hand.</li>
+          <li class="text-left">There can be false positive notifications if a hand is detected when one isn't actually present.</li>
+          <li class="text-left">As a camera is 2D there can also be false positives present when placing the hand in front of the face (but not touching) in 3D space.</li>
+          <li class="text-left">For desktop notifications, please ensure that you have do not disturb turned off in your notification center!</li>
+          <li class="text-left">This app does not currently run in the background; please keep this tab in a separate window and keep it open.</li>
+        </ul>
+      </div>
+    </div>
+    </div>
   </main>
 
   <footer class="mastfoot mt-auto">
     <div class="inner">
-      <p><strong>Credits:</strong></p>
+      <h2>Credits</h2>
       <p>Students and friends of <a rel="noopener noreferrer" target="_blank" href="https://gixnetwork.org/" target='_blank'>University of Washington's GIX Program</a>, including:</p>
       <p>[Steven Guh, Cody Gagnon, Ke Wang, Wenbo Zhong] - Developers & Execution <br>Ken Christofferson, Robin Yang, Justice (Yi) Zheng, Xuyu Chen, and Hao Liu<br></p>
       <p><strong>Special thanks for the guidance and mentorship from:</strong></p>
