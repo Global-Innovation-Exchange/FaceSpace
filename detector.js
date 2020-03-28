@@ -8,6 +8,7 @@ import * as tf from '@tensorflow/tfjs-core';
 import { sleep } from './utils';
 import { fingerLookup, drawFacePredictions, drawHandPredictions } from './draw';
 import { BoundingBox, boxLookup } from './box';
+import DetectionHistory from './detectorHistory';
 
 function getFacePoints(predictions) {
     const pointsData = predictions.map(prediction =>
@@ -33,7 +34,7 @@ function getShortestDistance(points1, points2) {
             const z = p1[2] - p2[2];
             const d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
             if (shortestDistance === undefined || d < shortestDistance.d) {
-                shortestDistance = { x, y, z, d };
+                shortestDistance = { x, y, z, d, indices: [i, j] };
             }
         }
     }
@@ -46,7 +47,8 @@ const defaultParams = {
     width: undefined,
     height: undefined,
     maxFaces: 1,
-    timeout: 500,
+    timeout: 500, // 0.5 sec
+    detectionHistory: 1000 * 60 * 60, // An hour
     backend: 'webgl',
     onRender: () => { },
     onRendered: () => { },
@@ -92,6 +94,7 @@ export default class Detector {
         this.video = video;
         this.scatterContainer = scatterContainer;
         this.isStarted = false;
+        this.detectionHistory = new DetectionHistory(1000 * 60 * 2);
     }
 
     async setupCamera() {
@@ -236,15 +239,16 @@ export default class Detector {
             } else {
                 this.scatterGL.updateDataset(dataset);
             }
-
+            const faceHeatmap = this.detectionHistory.getFaceMap('OrRd');
+            const handHeatmap = this.detectionHistory.getHandMap(['skyblue', 'navy']);
             // Render lines for fingers and bounding boxes
             this.scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
             this.scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
                 let length = handPoints.length;
-                if (i < length) return 'red';
+                if (i < length) return handHeatmap[i].toString();
 
                 length = length + facePoints.length;
-                if (i < length) return 'green';
+                if (i < length) return faceHeatmap[i - handPoints.length].toString();
 
                 length = length + ANCHOR_POINTS.length;
                 if (i < length) return 'white';
@@ -272,7 +276,10 @@ export default class Detector {
             }
         }
 
-        if (detected) this.params.onDetected();
+        if (detected) {
+            this.params.onDetected();
+            this.detectionHistory.push(...minDistance.indices);
+        }
         this.params.onRendered({ handPoints, facePoints, handBox, faceBox, deltaVolume, minDistance, detected });
     }
 
