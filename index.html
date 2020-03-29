@@ -1,53 +1,82 @@
-<!-- Copyright 2020 Google LLC. All Rights Reserved.
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.5">
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-==============================================================================-->
-
-<head>
-  <!-- Load three.js -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
-<!-- Load scatter-gl.js -->
-<!-- Use npm package once https://github.com/PAIR-code/scatter-gl/issues/36 is fixed -->
-<script src="https://storage.googleapis.com/learnjs-data/handtrack_staging/scatter-gl.js"></script>
+    <title>👨 Don't Touch Your Face 👩‍</title>
 <style>
-  .detector-canvas-wrapper, .detector-scatter-gl-container {
-    display: inline-block;
-    vertical-align: top;
-  }
-
-  .detector-scatter-gl-container {
-    border: solid 1px black;
-    position: relative;
-  }
-
-  /* center the canvas within its wrapper */
-  .detector-scatter-gl-container canvas {
-    transform: translate3d(-50%, -50%, 0);
-    left: 50%;
-    top: 50%;
-    position: absolute;
+  *{
+  font-family: Futura;
+  box-sizing: border-box;
   }
 </style>
-</head>
-<body>
-  <div id="main">
-    <div id="detector-container">
+  </head>
+  <body class="text-center">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+
+  <div class="container">
+    <div class="jumbotron" style="background-color: #FF9500;">
+      <h1>👨 Don't Touch Your Face 👩‍</h1> 
+      <br>
+      <p><strong>To protect yourself during the outbreak of COVID-19, this app helps you keeps your hands off your face using your webcam and machine learning. We take your privacy very seriously. All of the camera data stays local and never leaves your computer. This app works locally in your browser.</strong></p>
     </div>
-    <pre id="distance"></pre>
-    <pre id="intersection"></pre>
-    <pre id="deltaCenter"></pre>
-    <pre id="detection"></pre>
   </div>
-</body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
-<script src="index.js"></script>
+
+  <main role="main" class="inner cover">
+    <br>
+    <p class="lead">
+      <a href="./main.html" class="btn btn-lg btn-primary">Start</a>
+    </p>
+    <br>
+    <h1 class="cover-heading">FAQ</h1>
+    <div class="row justify-content-center">
+      <strong><p>How does this work under the hood?</p></strong>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <p class="text-left">Using <a rel="noopener noreferrer" target="_blank" href="https://blog.tensorflow.org/2020/03/face-and-hand-tracking-in-browser-with-mediapipe-and-tensorflowjs.html" >Google's handpose and facemesh packages</a> (we combined the two), we're able to detect when you're touching your face based on the intersection of your hand and face.</p> 
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <strong><p>What are its limitations?</p></strong>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <p class="text-left">The models are relatively new and provide great overall accuracy, but there are a couple drawbacks and you may need to tweak a couple things for the best experience:</p>
+        <ul>
+          <li class="text-left">Handpose currently only supports recognizing a single hand.</li>
+          <li class="text-left">There can be false positive notifications if a hand is detected when one isn't actually present.</li>
+          <li class="text-left">As a camera is 2D there can also be false positives present when placing the hand in front of the face (but not touching) in 3D space.</li>
+          <li class="text-left">For desktop notifications, please ensure that you have do not disturb turned off in your notification center!</li>
+          <li class="text-left">This app does not currently run in the background; please keep this tab in a separate window and keep it open.</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+  </main>
+
+  <footer class="mastfoot mt-auto">
+    <div class="inner">
+      <h2>Credits</h2>
+      <p>Students and friends of <a rel="noopener noreferrer" target="_blank" href="https://gixnetwork.org/" target='_blank'>University of Washington's GIX Program</a>, including:</p>
+      <p>[Steven Guh, Cody Gagnon, Ke Wang, Wenbo Zhong] - Developers & Execution <br>Ken Christofferson, Robin Yang, Justice (Yi) Zheng, Xuyu Chen, and Hao Liu<br></p>
+      <p><strong>Special thanks for the guidance and mentorship from:</strong></p>
+      <p>Sidhant Gupta, John Raiti, Yuntao Wang, Shwetak Patel</p>
+    </div>
+  </footer>
+  </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>

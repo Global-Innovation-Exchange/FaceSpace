@@ -17,7 +17,6 @@
  */
 
 import * as workerTimers from 'worker-timers';
-import Stats from 'stats.js';
 import Detector from './detector';
 
 function isMobile() {
@@ -39,69 +38,72 @@ function f(d) {
   return str;
 }
 
+var loading = true
 async function main() {
   // Request permission
   await Notification.requestPermission();
-
-  const stats = new Stats();
-  stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.getElementById('main').appendChild(stats.dom);
-  
+  if (loading) {
+    $("#timesTouchedText").hide();
+    $("#totalCount").hide();
+    $("#title").hide();
+    $("#footer").hide();
+  }
   let touchCounter = 0;
+  let totalTouches = 0;
+  let faceAlreadyTouched = false;
+  let faceCurrentlyTouched = false;
+
   const mobile = isMobile();
   const detectorParams = {
-    renderPointCloud: !mobile,
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
-    timeout: 500,
-    renderPointCloud: true,
+    renderPointCloud: false,
+    timeout: 300,
     renderCanvas: true,
-    renderFaceMesh: true,
     onDetected: () => { touchCounter++; },
-    onRender: () => { stats.begin(); },
+    onRender: () => { 
+      if (loading){
+        $("#timesTouchedText").show();
+        $("#totalCount").show();
+        $("#title").show();
+        $("#footer").show();
+        let el = document.getElementById('loading-animation');
+        el.parentNode.removeChild(el);
+
+        const gui = new dat.GUI();
+        gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
+        loading = false;
+      }
+    },
     onRendered: (result) => {
-      const minDistance = result.minDistance;
-      const handBox = result.handBox;
-      const faceBox = result.faceBox;
-      const deltaVolume = result.deltaVolume;
-
-      document.querySelector('#distance').innerText = minDistance
-        ? `Closest ||p||: ${f(minDistance.distance)}, Δx: ${f(minDistance.diffX)}, Δy: ${f(minDistance.diffY)}, Δz: ${f(minDistance.diffZ)}, Δdistance: ${f(minDistance.distance)}`
-        : `Closest ||p||: Undefined`;
-
-      document.querySelector('#intersection').innerText =
-        `Volume intersected: ${deltaVolume}`;
-      document.querySelector('#deltaCenter').innerText = minDistance
-        ? `Center bounding box ||p||: ${f(Math.sqrt(Math.pow(handBox.xCenter - faceBox.xCenter, 2) + Math.pow(handBox.yCenter - faceBox.yCenter, 2) + Math.pow(handBox.zCenter - faceBox.zCenter, 2)))} Δx:${f(handBox.xCenter - faceBox.xCenter)} Δy:${f(handBox.yCenter - faceBox.yCenter)} Δz:${f(handBox.zCenter - faceBox.zCenter)}`
-        : `Center bounding box: Undefined`;
-
-      document.querySelector('#detection').innerText =
-        `Detection: ${result.detected ? 'Yes' : 'No'}`;
-      stats.end();
+      faceCurrentlyTouched = result.detected;
     }
   };
 
-  // Check every 5 secs with at least three touches
+  // Check every second with at least three touches
   workerTimers.setInterval(() => {
-    if (touchCounter > 2 && Notification.permission === 'granted') {
-      new Notification('You touched your face!');
+    if (touchCounter >= 2 && Notification.permission === 'granted' && !faceAlreadyTouched) {
+      new Notification('🤭 You touched your face! 🤭');
+      $("#face-touch-alert").show();
+      totalTouches++;
+      document.querySelector('#totalCount').innerText = totalTouches;
+      document.querySelector('#timesTouchedText').innerText = totalTouches === 1 ? 'time touched' : 'times touched';
+      window.document.title = '😱'
+      faceAlreadyTouched = true;
+    }
+    if (!faceCurrentlyTouched) {
+      window.document.title = '☺️'
+      faceAlreadyTouched = false;
+      $("#face-touch-alert").hide();
     }
     touchCounter = 0;
-  }, 5 * 1000);
+  }, 1000); 
 
   const detector = new Detector(document.getElementById('detector-container'), detectorParams);
 
   const state = {
-    timeout: detectorParams.timeout,
-    renderPointCloud: detectorParams.renderPointCloud,
-    renderCanvas: detectorParams.renderCanvas,
-    triangulateMesh: detectorParams.renderFaceMesh,
+    'frame timeout': detectorParams.timeout,
   };
-  const gui = new dat.GUI();
-  gui.add(state, 'timeout', 0, 2000).onChange((value) => { detector.update({ timeout: value }); });
-  gui.add(state, 'renderPointCloud').onChange((value) => { detector.update({ renderPointCloud: value }); });
-  gui.add(state, 'renderCanvas').onChange((value) => { detector.update({ renderCanvas: value }); });
-  gui.add(state, 'triangulateMesh').onChange((value) => { detector.update({ renderFaceMesh: value }); });
 
   await detector.load();
   detector.start();

@@ -1,0 +1,108 @@
+.detector-canvas-wrapper, .detector-scatter-gl-container, #detection-container {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  #detection-container {
+    border: solid 1px black;
+    position: relative;
+  } */
+
+  /* center the canvas within its wrapper */
+  #detection-container canvas {
+    transform: translate3d(-50%, -50%, 0);
+    left: 50%;
+    top: 50%;
+    position: absolute;
+  }
+
+/* UI */
+
+*{
+  font-family: Futura;
+  box-sizing: border-box;
+}
+
+body, html{
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+.header{
+  background-color: #FF9500; 
+  padding: 15px; 
+  text-align: center; 
+}
+
+.button {
+  background-color: #000000;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+#start{
+  padding: 15px 32px;
+  font-size: 16px;
+}
+
+#camera{
+  padding: 10px 20px;
+  font-size: 12px;
+}
+
+
+#totalCount{
+  display: inline-block;
+  font-size: 6em;
+  margin-block-start: 0em;
+  margin-block-end: 0em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+
+/* #times{
+  display: inline-block;
+  margin-left: 10px;
+} */
+
+/* .columnA, .columnB{ 
+  float: left;  
+  text-align:justify; 
+  padding: 15px; 
+} 
+
+.columnA{
+  width: 60%;
+}
+
+.columnB{
+  width: 40%;
+  padding-top: 40px;
+} */
+
+/* .banner{
+  margin: 0px;
+  padding: 5% 10% 10% 10%;
+  background-color: #FF9500; 
+  width: 100%;
+  position: relative;
+  height: 70vh;
+  text-align: center;
+} */
+
+/* h1{
+  display: block;
+  font-size: 4em;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+} */

@@ -1,5 +1,5 @@
 {
-  "name": "facemesh_demo",
+  "name": "face_off",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,8 @@
     "node": ">=8.9.0"
   },
   "dependencies": {
+    "@mdi/font": "^5.0.45",
+    "@mdi/js": "^5.0.45",
     "@tensorflow-models/facemesh": "0.0.1",
     "@tensorflow-models/handpose": "^0.0.3",
     "@tensorflow/tfjs-converter": "^1.6.1",
@@ -17,8 +19,8 @@
     "worker-timers": "^6.0.6"
   },
   "scripts": {
-    "watch": "cross-env NODE_ENV=development parcel index.html --no-hmr --target browser",
-    "build": "cross-env NODE_ENV=production parcel build index.html --target browser --public-url ./",
+    "watch": "cross-env NODE_ENV=development parcel *.html --no-hmr --target browser",
+    "build": "cross-env NODE_ENV=production parcel build *.html --target browser --public-url ./",
     "lint": "eslint .",
     "link-local": "yalc link @tensorflow-models/facemesh"
   },
