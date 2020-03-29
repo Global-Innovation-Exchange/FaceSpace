@@ -17,7 +17,6 @@
  */
 
 import * as workerTimers from 'worker-timers';
-import Stats from 'stats.js';
 import Detector from './detector';
 
 function isMobile() {
@@ -38,14 +37,11 @@ function f(d) {
   }
   return str;
 }
-// TODO: store this state in a better place
+
 var loading = true
 async function main() {
   // Request permission
   await Notification.requestPermission();
-  const stats = new Stats();
-  stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-  // document.getElementById('main').appendChild(stats.dom);
   if (loading) {
     $("#timesTouchedText").hide();
     $("#totalCount").hide();
@@ -56,29 +52,24 @@ async function main() {
   let totalTouches = 0;
   let faceAlreadyTouched = false;
   let faceCurrentlyTouched = false;
+
   const mobile = isMobile();
   const detectorParams = {
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
-    // renderPointCloud: !mobile, // can be used for mobile screens
     renderPointCloud: false,
     timeout: 300,
     renderCanvas: true,
-    // renderFaceMesh: true,
     onDetected: () => { touchCounter++; },
     onRender: () => { 
-      stats.begin();
-      // clearInterval(loadingAnimation);
       if (loading){
-        // let el = document.getElementById('loading-header');
-        // el.parentNode.removeChild(el);
         $("#timesTouchedText").show();
         $("#totalCount").show();
         $("#title").show();
         $("#footer").show();
         let el = document.getElementById('loading-animation');
         el.parentNode.removeChild(el);
-        // Copied here to ensure it only shows on load
+
         const gui = new dat.GUI();
         gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
         loading = false;
@@ -89,21 +80,8 @@ async function main() {
       const handBox = result.handBox;
       const faceBox = result.faceBox;
       const deltaVolume = result.deltaVolume;
-
-      // document.querySelector('#distance').innerText = d
-      //   ? `Closest ||p||: ${f(d.d)}, Δx: ${f(d.x)}, Δy: ${f(d.y)}, Δz: ${f(d.z)}`
-      //   : `Closest ||p||: Undefined`;
-
-      // document.querySelector('#intersection').innerText =
-      //   `Volume intersected: ${deltaVolume}`;
-      // document.querySelector('#deltaCenter').innerText = d
-      //   ? `Center bounding box ||p||: ${f(Math.sqrt(Math.pow(handBox.xCenter - faceBox.xCenter, 2) + Math.pow(handBox.yCenter - faceBox.yCenter, 2) + Math.pow(handBox.zCenter - faceBox.zCenter, 2)))} Δx:${f(handBox.xCenter - faceBox.xCenter)} Δy:${f(handBox.yCenter - faceBox.yCenter)} Δz:${f(handBox.zCenter - faceBox.zCenter)}`
-      //   : `Center bounding box: Undefined`;
-
-      // document.querySelector('#detection').innerText =
-      //   `Detection: ${result.detected ? 'Yes' : 'No'}`;
+  
       faceCurrentlyTouched = result.detected;
-      stats.end();
     }
   };
 
@@ -116,10 +94,6 @@ async function main() {
       document.querySelector('#totalCount').innerText = totalTouches;
       document.querySelector('#timesTouchedText').innerText = totalTouches === 1 ? 'time touched' : 'times touched';
       window.document.title = '😱'
-      // TODO: add log! stretch: take canvas snapshots for each...
-      let today = new Date();
-      let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      console.log(time)
       faceAlreadyTouched = true;
     }
     if (!faceCurrentlyTouched) {
@@ -134,20 +108,10 @@ async function main() {
 
   const state = {
     'frame timeout': detectorParams.timeout,
-    // renderPointCloud: detectorParams.renderPointCloud,
-    // renderCanvas: detectorParams.renderCanvas,
-    // triangulateMesh: detectorParams.renderFaceMesh,
   };
-  // const gui = new dat.GUI();
-  // gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
-  // gui.add(state, 'renderPointCloud').onChange((value) => { detector.update({ renderPointCloud: value }); });
-  // gui.add(state, 'renderCanvas').onChange((value) => { detector.update({ renderCanvas: value }); });
-  // gui.add(state, 'triangulateMesh').onChange((value) => { detector.update({ renderFaceMesh: value }); });
 
   await detector.load();
   detector.start();
 }
-
-// $('#exampleModalLong').modal('show');
 
 main();

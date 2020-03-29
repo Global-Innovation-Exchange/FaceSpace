@@ -15,8 +15,6 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.106.2/build/three.min.js"></script>
     <!-- Use the version in the handpose until the fix in https://github.com/PAIR-code/scatter-gl/pull/26 in released -->
     <script src="https://storage.googleapis.com/learnjs-data/handtrack_staging/scatter-gl.js"></script>
-
-    <!-- <script src="function.js"></script> -->
     <title>☺️</title>
   </head>
   <body>
@@ -30,12 +28,10 @@
         <div class="p-2"><br>This may take a few moments</div>
       </div>
       </div>
-      <!-- <div class="row"><br><br>This may take a few moments</div> -->
     </div>
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <!-- <div class="col-md-12" > -->
             <div class="text-center" id="title">
               <div class="jumbotron" style="background-color: #FF9500;">
                 <h1>👨 Don't Touch Your Face 👩‍</h1>
@@ -55,15 +51,12 @@
       </div>
       <div class="row">
         <div class="col-md-12">
-          <!-- <div class="col-md-12" > -->
             <div class="text-center">
               <p id ="timesTouchedText">times touched</p>
             </div>
         </div>
       </div>
       <div class="row">
-        <!-- <div class="col-md-6" style="background-color:yellow;"> -->
-        <!-- <div class="col-md-6"> -->
         <div class="col-md-12">
           <div class="d-flex justify-content-center">
           <div class="detector-canvas-wrapper">
@@ -77,25 +70,14 @@
                 height: auto;
                 ">
                 </video>
-                <!-- these are copied here to ensure they exist -->
                 <div id="detector-container"></div>
                 <div id="scatter-gl-container"></div>
               </div>
             </div>
           </div>
         </div>
-        <!-- <div class="col-md-6" style="background-color:pink;"> -->
-        <!-- <div class="col-md-6">
-          <div id="detector-container"></div>
-          <div id="scatter-gl-container"></div>
-        </div> -->
       </div>
-      <!-- <div class="row" style="background-color:green;"> -->
-      <!-- <div class="row"> -->
-        <!-- <div class="col-md-4" style="background-color:yellow;"> -->
-
       <div class="row">
-        <!-- <div class="col-md-8" style="background-color:yellow;"> -->
         <div class="col-md-6">
           <div id="main">
             <pre id="distance"></pre>
@@ -104,12 +86,8 @@
             <pre id="detection"></pre>
           </div>
         </div>
-        <!-- Touch Count -->
-
       </div>
     </div>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
