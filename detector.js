@@ -21,24 +21,26 @@ function getHandPoints(predictions) {
     return pointsData.flat();
 }
 
-function getShortestDistance(points1, points2) {
-    // TODO better algorithm
-    let shortestDistance = undefined;
-    for (let i = 0; i < points1.length; i++) {
-        for (let j = 0; j < points2.length; j++) {
-            const p1 = points1[i];
-            const p2 = points2[j];
-            const x = p1[0] - p2[0];
-            const y = p1[1] - p2[1];
-            const z = p1[2] - p2[2];
-            const d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
-            if (shortestDistance === undefined || d < shortestDistance.d) {
-                shortestDistance = { x, y, z, d };
+function getShortestDistance(handPoints, facePoints) {
+    let minDistance = undefined;
+    if (handPoints.length != 0 || handPoints.length != 0) { // if there's no hand or face, there's no need to build the tree
+        for (let handPointIndex = 0; handPointIndex < handPoints.length; handPointIndex++) {
+            const handPoint = handPoints[handPointIndex];
+            for (let facePointIndex = 0; facePointIndex < facePoints.length; facePointIndex++) {
+                const facePoint = facePoints[facePointIndex];
+                const diffX = handPoint[0] - facePoint[0];
+                const diffY = handPoint[1] - facePoint[1];
+                const diffZ = handPoint[2] - facePoint[2];
+                const distance = Math.sqrt(Math.pow(diffX, 2) + Math.pow(diffY, 2) + Math.pow(diffZ, 2));
+                if (minDistance === undefined || distance < minDistance.distance) {
+                    minDistance = { diffX, diffY, diffZ, distance, handPointIndex, facePointIndex };
+                }
             }
         }
     }
-    return shortestDistance;
+    return minDistance;
 }
+
 const defaultParams = {
     renderPointCloud: false,
     renderCanvas: true,
@@ -205,10 +207,39 @@ export default class Detector {
 
         const handPoints = getHandPoints(hp);
         const facePoints = getFacePoints(fp);
-        const handBox = BoundingBox.createFromPoints(handPoints);
-        const faceBox = BoundingBox.createFromPoints(facePoints, 20);
-        const handBoxPoints = handBox ? handBox.toPoints() : [];
+        let handBox = BoundingBox.createFromPoints(handPoints);
+        const faceBox = BoundingBox.createFromPoints(facePoints, 10);
         const faceBoxPoints = faceBox ? faceBox.toPoints() : [];
+        let isInFrontOfFace = false;
+
+        // rescale hand z axis according to center of the face
+        if (handBox && faceBox) {
+            const faceHalfWidth = (faceBox.xMax - faceBox.xMin) / 2;
+            const face_center_x = faceBox.xMin + faceHalfWidth;
+            let handXAvg = 0;
+            for (let i = 0; i < handPoints.length; i++) {
+                handXAvg += handPoints[i][0];
+            }
+            handXAvg /= handPoints.length;
+            const distanceToFaceCenterX = Math.abs(handXAvg - face_center_x);
+            if (handXAvg > faceBox.xMin && handXAvg < faceBox.xMax) { // hand in front of the face
+                isInFrontOfFace = true;
+                const isFarFromCenter = (faceHalfWidth - distanceToFaceCenterX) / faceHalfWidth;  // from 1 to 0 depends on how far from face center x
+                const scaleFactor = (Math.atan(isFarFromCenter * 32 - 25) / (Math.PI / 2) + 1) / 2; 
+                for (let i = 0; i < handPoints.length; i++) {
+                    handPoints[i][2] = handPoints[i][2] + 35 * scaleFactor;
+                }
+            }
+        }
+
+        // regenerate hand bbox after scaling z axis
+        handBox = BoundingBox.createFromPoints(handPoints);
+        const handBoxPoints = handBox ? handBox.toPoints() : [];
+
+        const deltaVolume = (handBox && faceBox)
+            ? handBox.getIntersectionVolume(faceBox)
+            : 0.0;
+        const minDistance = getShortestDistance(handPoints, facePoints);
 
         if (this.params.renderPointCloud && this.scatterGL) {
             // These anchor points allow the hand pointcloud to resize according to its
@@ -244,36 +275,34 @@ export default class Detector {
             // Render lines for fingers and bounding boxes
             this.scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
             this.scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
+                if (minDistance && 
+                    (i == handPoints.length + minDistance.facePointIndex || i == minDistance.handPointIndex)) {
+                    return 'red';
+                }
+
                 let length = handPoints.length;
-                if (i < length) return 'red';
+                if (i < length) return 'green'; // set face pointcloud to yellow
 
                 length = length + facePoints.length;
-                if (i < length) return 'green';
+                if (i < length) return 'yellow'; // set hand pointcloud to green
 
                 length = length + ANCHOR_POINTS.length;
                 if (i < length) return 'white';
 
-                return 'blue';
+                return 'blue'; // 3d bounding box
             });
             this.scatterGLHasInitialized = true;
         }
 
-        const deltaVolume = (handBox && faceBox)
-            ? handBox.getIntersectionVolume(faceBox)
-            : 0.0;
-        const minDistance = getShortestDistance(handPoints, facePoints);
-
         let detected = false;
-        if (handBox && faceBox && deltaVolume > 0 && !!minDistance) {
-            // Only if the two bounding boxes intersect
-            if (faceBox.xMin < handBox.xMin && handBox.xMax < faceBox.xMax) {
+        if (handBox && faceBox && !!minDistance) {
+            if (isInFrontOfFace) {
                 // The hand bounding box is with in the face box,
                 // which means the hand is in front of the face
-                // detected = minDistance.d < 10;
-                detected = minDistance.d < 25;
+                detected = minDistance.distance < 10;
             } else {
                 // The hand is on the side
-                detected = minDistance.d < 30;
+                detected = minDistance.distance < 30;
             }
         }
 

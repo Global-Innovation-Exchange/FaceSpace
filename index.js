@@ -76,11 +76,6 @@ async function main() {
       }
     },
     onRendered: (result) => {
-      const d = result.minDistance;
-      const handBox = result.handBox;
-      const faceBox = result.faceBox;
-      const deltaVolume = result.deltaVolume;
-  
       faceCurrentlyTouched = result.detected;
     }
   };
