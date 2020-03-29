@@ -38,16 +38,15 @@ function f(d) {
   return str;
 }
 
-var loading = true
 async function main() {
   // Request permission
   await Notification.requestPermission();
-  if (loading) {
-    $("#timesTouchedText").hide();
-    $("#totalCount").hide();
-    $("#title").hide();
-    $("#footer").hide();
-  }
+
+  $("#timesTouchedText").hide();
+  $("#totalCount").hide();
+  $("#title").hide();
+  $("#footer").hide();
+
   let touchCounter = 0;
   let totalTouches = 0;
   let faceAlreadyTouched = false;
@@ -61,20 +60,6 @@ async function main() {
     timeout: 300,
     renderCanvas: true,
     onDetected: () => { touchCounter++; },
-    onRender: () => { 
-      if (loading){
-        $("#timesTouchedText").show();
-        $("#totalCount").show();
-        $("#title").show();
-        $("#footer").show();
-        let el = document.getElementById('loading-animation');
-        el.parentNode.removeChild(el);
-
-        const gui = new dat.GUI();
-        gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
-        loading = false;
-      }
-    },
     onRendered: (result) => {
       faceCurrentlyTouched = result.detected;
     }
@@ -97,15 +82,24 @@ async function main() {
       $("#face-touch-alert").hide();
     }
     touchCounter = 0;
-  }, 1000); 
+  }, 1000);
 
   const detector = new Detector(document.getElementById('detector-container'), detectorParams);
+  await detector.load();
 
+  $("#timesTouchedText").show();
+  $("#totalCount").show();
+  $("#title").show();
+  $("#footer").show();
+  let el = document.getElementById('loading-animation');
+  el.parentNode.removeChild(el);
+
+  const gui = new dat.GUI();
   const state = {
     'frame timeout': detectorParams.timeout,
   };
+  gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
 
-  await detector.load();
   detector.start();
 }
 

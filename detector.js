@@ -64,27 +64,22 @@ export default class Detector {
     constructor(containerElement, params) {
         params = Object.assign({}, defaultParams, params);
 
-        // const canvasWrapper = document.createElement('div');
-        // canvasWrapper.className = 'detector-canvas-wrapper';
-        // const canvasWrapper = document.getElementsByClassName('detector-canvas-wrapper');
-        const canvasWrapper = document.getElementById('face-mesh-video');
+        const canvasWrapper = document.createElement('div');
         canvasWrapper.className = 'detector-canvas-wrapper';
-        console.log(canvasWrapper)
-        // const canvas = document.createElement('canvas');
-        const canvas = document.getElementById('output');
+
+        const canvas = document.createElement('canvas');
         canvas.className = 'detector-overlay';
 
-        // const video = document.createElement('video');
-        const video = document.getElementById('video');
-        // video.setAttribute('playinline', 'playinline');
-        // video.style = `transform: scaleX(-1);
-        //     visibility: hidden;
-        //     width: auto;
-        //     height: auto;`;
+        const video = document.createElement('video');
+        video.setAttribute('playinline', 'playinline');
+        video.style = `transform: scaleX(-1);
+            display: none;
+            width: auto;
+            height: auto;`;
 
         canvasWrapper.appendChild(canvas);
         canvasWrapper.appendChild(video);
-        // containerElement.appendChild(canvasWrapper);
+        containerElement.appendChild(canvasWrapper);
 
         const scatterContainer = document.createElement('div');
         scatterContainer.className = 'detector-scatter-gl-container';
