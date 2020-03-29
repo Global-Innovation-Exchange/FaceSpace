@@ -19,6 +19,7 @@
 import * as workerTimers from 'worker-timers';
 import Stats from 'stats.js';
 import Detector from './detector';
+import audioUrl from './alert.mp3';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -84,7 +85,9 @@ async function main() {
   // Check every 5 secs with at least three touches
   workerTimers.setInterval(() => {
     if (touchCounter > 2 && Notification.permission === 'granted') {
-      new Notification('You touched your face!');
+      const audio = new Audio(audioUrl);
+      audio.play();
+      new Notification('You touched your face!', { silent: true });
     }
     touchCounter = 0;
   }, 5 * 1000);
