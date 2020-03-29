@@ -18,11 +18,6 @@
 
 /* UI */
 
-*{
-  font-family: Futura;
-  box-sizing: border-box;
-}
-
 body, html{
   height: 100%;
   padding: 0;
