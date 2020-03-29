@@ -9,8 +9,6 @@
     "node": ">=8.9.0"
   },
   "dependencies": {
-    "@mdi/font": "^5.0.45",
-    "@mdi/js": "^5.0.45",
     "@tensorflow-models/facemesh": "0.0.1",
     "@tensorflow-models/handpose": "^0.0.3",
     "@tensorflow/tfjs-converter": "^1.6.1",
