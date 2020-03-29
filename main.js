@@ -67,8 +67,12 @@ async function main() {
 
   // Check every second with at least three touches
   workerTimers.setInterval(() => {
-    if (touchCounter >= 2 && Notification.permission === 'granted' && !faceAlreadyTouched) {
-      new Notification('🤭 You touched your face! 🤭');
+    if (touchCounter >= 2 && !faceAlreadyTouched) {
+
+      if (Notification.permission === 'granted') {
+        new Notification('🤭 You touched your face! 🤭');
+      }
+
       $("#face-touch-alert").show();
       totalTouches++;
       document.querySelector('#totalCount').innerText = totalTouches;
