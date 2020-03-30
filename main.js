@@ -27,16 +27,6 @@ function isMobile() {
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
 
-// Format to number to have consistent length
-function f(d) {
-  const options = { minimumIntegerDigits: 3, minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false };
-  let str = d.toLocaleString('en', options);
-  if (d >= 0) {
-    str = ` ${str}`;
-  }
-  return str;
-}
-
 async function main() {
   const mobile = isMobile();
   const touchBuffer = [false, false, false];
@@ -59,7 +49,7 @@ async function main() {
 
     // if it is not currently touch
     if (!touchBuffer[2]) {
-      window.document.title = '☺️ - FaceSpace'
+      window.document.title = '☺️ - FaceSpace';
       $("#face-touch-alert").hide();
     }
   }
