@@ -67,7 +67,6 @@ async function main() {
 
     // if it is not currently touch
     if (!touchBuffer[2]) {
-      favicon.href = faviconUrl;
       $('#face-touch-alert').hide();
     } else {
       $('#face-touch-alert').show();
@@ -87,8 +86,13 @@ async function main() {
         touchCounter++;
         if (isNotificationSupported && Notification.permission === 'granted') {
           new Notification('🤭 You touched your face! 🤭');
-          favicon.href = touchUrl;
         }
+      }
+
+      if (result.detected) {
+        favicon.href = touchUrl;
+      } else {
+        favicon.href = faviconUrl;
       }
 
       // Update UI only the window on foreground.
