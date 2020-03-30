@@ -17,7 +17,6 @@
  */
 
 import Detector from './detector';
-import { changeFavicon } from './favicon';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
