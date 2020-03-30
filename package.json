@@ -1,5 +1,5 @@
 {
-  "name": "facemesh_demo",
+  "name": "FaceSpace",
   "version": "0.0.1",
   "description": "",
   "main": "index.js",
@@ -17,8 +17,8 @@
     "worker-timers": "^6.0.6"
   },
   "scripts": {
-    "watch": "cross-env NODE_ENV=development parcel index.html --no-hmr --target browser",
-    "build": "cross-env NODE_ENV=production parcel build index.html --target browser --public-url ./",
+    "watch": "cross-env NODE_ENV=development parcel *.html --no-hmr --target browser",
+    "build": "cross-env NODE_ENV=production parcel build *.html --target browser --public-url ./",
     "lint": "eslint .",
     "link-local": "yalc link @tensorflow-models/facemesh"
   },
