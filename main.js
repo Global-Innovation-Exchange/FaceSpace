@@ -17,6 +17,8 @@
  */
 
 import Detector from './detector';
+import faviconUrl from './favicon.ico';
+import touchUrl from './touch.ico';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -30,6 +32,7 @@ const VIDEO_HEIGHT = 500;
 
 async function main() {
   const mobile = isMobile();
+  const favicon = document.getElementById('favicon');
   const isNotificationSupported = 'Notification' in window;
   const touchBuffer = [false, false, false];
   let touchCounter = 0;
@@ -65,8 +68,7 @@ async function main() {
 
     // if it is not currently touch
     if (!touchBuffer[2]) {
-      document.getElementById("favicon").setAttribute("href", 'favicon.ico');
-      $("#face-touch-alert").hide();
+      favicon.href = faviconUrl;
     }
   }
   const detectorParams = {
@@ -83,7 +85,7 @@ async function main() {
         touchCounter++;
         if (isNotificationSupported && Notification.permission === 'granted') {
           new Notification('🤭 You touched your face! 🤭');
-          document.getElementById("favicon").setAttribute("href", 'touch.ico'); 
+          favicon.href = touchUrl;
         }
       }
 
