@@ -16,7 +16,6 @@
  * =============================================================================
  */
 
-import * as workerTimers from 'worker-timers';
 import Detector from './detector';
 
 function isMobile() {
@@ -39,6 +38,10 @@ function f(d) {
 }
 
 async function main() {
+  const mobile = isMobile();
+  const touchBuffer = [false, false, false];
+  let touchCounter = 0;
+
   // Request permission
   await Notification.requestPermission();
 
@@ -47,46 +50,41 @@ async function main() {
   $("#title").hide();
   $("#footer").hide();
 
-  let touchCounter = 0;
-  let totalTouches = 0;
-  let faceAlreadyTouched = false;
-  let faceCurrentlyTouched = false;
+  function updateUI() {
+    $("#face-touch-alert").show();
+    document.querySelector('#totalCount').innerText = touchCounter;
+    document.querySelector('#timesTouchedText').innerText =
+      touchCounter === 1 ? 'time touched' : 'times touched';
+    window.document.title = '😱 - FaceSpace';
 
-  const mobile = isMobile();
+    // if it is not currently touch
+    if (!touchBuffer[2]) {
+      window.document.title = '☺️ - FaceSpace'
+      $("#face-touch-alert").hide();
+    }
+  }
   const detectorParams = {
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
     renderPointCloud: false,
     timeout: 300,
     renderCanvas: true,
-    onDetected: () => { touchCounter++; },
     onRendered: (result) => {
-      faceCurrentlyTouched = result.detected;
-    }
-  };
+      touchBuffer.push(result.detected);
+      touchBuffer.shift();
 
-  // Check every second with at least three touches
-  workerTimers.setInterval(() => {
-    if (touchCounter >= 2 && !faceAlreadyTouched) {
-
-      if (Notification.permission === 'granted') {
-        new Notification('🤭 You touched your face! 🤭');
+      if (!touchBuffer[0] && touchBuffer[1] && touchBuffer[2]) {
+        touchCounter++;
+        if (Notification.permission === 'granted') {
+          new Notification('🤭 You touched your face! 🤭');
+        }
       }
 
-      $("#face-touch-alert").show();
-      totalTouches++;
-      document.querySelector('#totalCount').innerText = totalTouches;
-      document.querySelector('#timesTouchedText').innerText = totalTouches === 1 ? 'time touched' : 'times touched';
-      window.document.title = '😱 - FaceSpace'
-      faceAlreadyTouched = true;
-    }
-    if (!faceCurrentlyTouched) {
-      window.document.title = '☺️ - FaceSpace'
-      faceAlreadyTouched = false;
-      $("#face-touch-alert").hide();
-    }
-    touchCounter = 0;
-  }, 1000);
+      // Update UI only the window on foreground.
+      // requestAnimationFrame will stop running once the window is in background
+      requestAnimationFrame(updateUI);
+    },
+  };
 
   const detector = new Detector(document.getElementById('detector-container'), detectorParams);
   await detector.load();
