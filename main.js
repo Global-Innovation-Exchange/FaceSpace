@@ -77,11 +77,11 @@ async function main() {
       totalTouches++;
       document.querySelector('#totalCount').innerText = totalTouches;
       document.querySelector('#timesTouchedText').innerText = totalTouches === 1 ? 'time touched' : 'times touched';
-      window.document.title = '😱'
+      window.document.title = '😱 - FaceSpace'
       faceAlreadyTouched = true;
     }
     if (!faceCurrentlyTouched) {
-      window.document.title = '☺️'
+      window.document.title = '☺️ - FaceSpace'
       faceAlreadyTouched = false;
       $("#face-touch-alert").hide();
     }
