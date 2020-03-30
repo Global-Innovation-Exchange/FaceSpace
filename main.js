@@ -19,7 +19,8 @@
 import Detector from './detector';
 import faviconUrl from './favicon.ico';
 import touchUrl from './touch.ico';
-import alertUrl from './alert.mp3';
+import popUrl from './pop.mp3';
+import coronavirusUrl from './coronavirus.mp3';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -32,10 +33,11 @@ const VIDEO_HEIGHT = 500;
 
 async function main() {
   const mobile = isMobile();
-  const alertAudio = new Audio(alertUrl);
   const favicon = document.getElementById('favicon');
   const isNotificationSupported = 'Notification' in window;
   const touchBuffer = [false, false, false];
+
+  let alertAudio = new Audio(popUrl);
   let touchCounter = 0;
 
   // Request permission
@@ -86,7 +88,9 @@ async function main() {
 
       if (!touchBuffer[0] && touchBuffer[1] && touchBuffer[2]) {
         touchCounter++;
-        alertAudio.play();
+        if (alertAudio) {
+          alertAudio.play();
+        }
         if (isNotificationSupported && Notification.permission === 'granted') {
           new Notification('🤭 You touched your face! 🤭', { silent: true });
           favicon.href = touchUrl;
@@ -111,8 +115,19 @@ async function main() {
   const gui = new dat.GUI();
   const state = {
     'frame timeout': detectorParams.timeout,
+    'sound': 'pop',
   };
   gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
+  gui.add(state, 'sound', ['none', 'pop', 'coronavirus']).onChange((value) => {
+    if (value === 'pop') {
+      alertAudio = new Audio(popUrl);
+    } else if (value === 'coronavirus') {
+      alertAudio = new Audio(coronavirusUrl);
+    } else {
+      alertAudio = null;
+    }
+  });
+
 
   detector.start();
 }
