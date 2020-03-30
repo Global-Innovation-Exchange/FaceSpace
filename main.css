@@ -26,20 +26,10 @@ body, html{
   width: 100%;
 }
 
-.header{
-  background-color: #FF9500; 
-  padding: 15px; 
-  text-align: center; 
+.jumbotron{
+  background-color: #FF9500 !important;
 }
 
-.button {
-  background-color: #000000;
-  border: none;
-  color: white;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-}
 
 #start{
   padding: 15px 32px;
