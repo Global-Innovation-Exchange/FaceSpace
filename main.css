@@ -1,0 +1,53 @@
+.detector-canvas-wrapper, .detector-scatter-gl-container, #detection-container {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  #detection-container {
+    border: solid 1px black;
+    position: relative;
+  } */
+
+  /* center the canvas within its wrapper */
+  #detection-container canvas {
+    transform: translate3d(-50%, -50%, 0);
+    left: 50%;
+    top: 50%;
+    position: absolute;
+  }
+
+/* UI */
+
+body, html{
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+.jumbotron{
+  background-color: #FF9500 !important;
+}
+
+
+#start{
+  padding: 15px 32px;
+  font-size: 16px;
+}
+
+#camera{
+  padding: 10px 20px;
+  font-size: 12px;
+}
+
+
+#totalCount{
+  display: inline-block;
+  font-size: 6em;
+  margin-block-start: 0em;
+  margin-block-end: 0em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
