@@ -17,6 +17,7 @@
  */
 
 import Detector from './detector';
+import { changeFavicon } from './favicon';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -26,6 +27,7 @@ function isMobile() {
 
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
+
 
 async function main() {
   const mobile = isMobile();
@@ -60,11 +62,11 @@ async function main() {
     document.querySelector('#totalCount').innerText = touchCounter;
     document.querySelector('#timesTouchedText').innerText =
       touchCounter === 1 ? 'time touched' : 'times touched';
-    window.document.title = '😱 - FaceSpace';
+    window.document.title = 'FaceSpace (beta)';
 
     // if it is not currently touch
     if (!touchBuffer[2]) {
-      window.document.title = '☺️ - FaceSpace';
+      document.getElementById("favicon").setAttribute("href", 'favicon.ico');
       $("#face-touch-alert").hide();
     }
   }
@@ -82,6 +84,7 @@ async function main() {
         touchCounter++;
         if (isNotificationSupported && Notification.permission === 'granted') {
           new Notification('🤭 You touched your face! 🤭');
+          document.getElementById("favicon").setAttribute("href", 'touch.ico'); 
         }
       }
 
