@@ -29,7 +29,6 @@ function isMobile() {
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
 
-
 async function main() {
   const mobile = isMobile();
   const favicon = document.getElementById('favicon');
@@ -54,21 +53,21 @@ async function main() {
     }
   }
 
-  $("#timesTouchedText").hide();
-  $("#totalCount").hide();
-  $("#title").hide();
-  $("#footer").hide();
+  $('#timesTouchedText').hide();
+  $('#totalCount').hide();
+  $('#title').hide();
+  $('#footer').hide();
 
   function updateUI() {
-    $("#face-touch-alert").show();
+    $('#face-touch-alert').show();
     document.querySelector('#totalCount').innerText = touchCounter;
     document.querySelector('#timesTouchedText').innerText =
       touchCounter === 1 ? 'time touched' : 'times touched';
-    window.document.title = 'FaceSpace (beta)';
 
     // if it is not currently touch
     if (!touchBuffer[2]) {
       favicon.href = faviconUrl;
+      $('#face-touch-alert').hide();
     }
   }
   const detectorParams = {
@@ -98,10 +97,10 @@ async function main() {
   const detector = new Detector(document.getElementById('detector-container'), detectorParams);
   await detector.load();
 
-  $("#timesTouchedText").show();
-  $("#totalCount").show();
-  $("#title").show();
-  $("#footer").show();
+  $('#timesTouchedText').show();
+  $('#totalCount').show();
+  $('#title').show();
+  $('#footer').show();
   $('#loading-animation').remove();
 
   const gui = new dat.GUI();
