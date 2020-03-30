@@ -29,11 +29,26 @@ const VIDEO_HEIGHT = 500;
 
 async function main() {
   const mobile = isMobile();
+  const isNotificationSupported = 'Notification' in window;
   const touchBuffer = [false, false, false];
   let touchCounter = 0;
 
   // Request permission
-  await Notification.requestPermission();
+  if (isNotificationSupported) {
+    if (Notification.permission === 'granted') {
+      $('#notification-request').hide();
+    } else if (Notification.permission === 'denied') {
+      // TODO: Add a dismissible alert banner notifying the user
+    } else { // default
+      $('#notification-request-yes-btn').click(async () => {
+        await Notification.requestPermission();
+        $('#notification-request').hide();
+      });
+      $('#notification-request-no-btn').click(() => {
+        $('#notification-request').hide();
+      });
+    }
+  }
 
   $("#timesTouchedText").hide();
   $("#totalCount").hide();
@@ -65,7 +80,7 @@ async function main() {
 
       if (!touchBuffer[0] && touchBuffer[1] && touchBuffer[2]) {
         touchCounter++;
-        if (Notification.permission === 'granted') {
+        if (isNotificationSupported && Notification.permission === 'granted') {
           new Notification('🤭 You touched your face! 🤭');
         }
       }
@@ -83,8 +98,7 @@ async function main() {
   $("#totalCount").show();
   $("#title").show();
   $("#footer").show();
-  let el = document.getElementById('loading-animation');
-  el.parentNode.removeChild(el);
+  $('#loading-animation').remove();
 
   const gui = new dat.GUI();
   const state = {
