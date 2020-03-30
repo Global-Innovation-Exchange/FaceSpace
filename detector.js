@@ -42,13 +42,13 @@ function getShortestDistance(handPoints, facePoints) {
 }
 
 const defaultParams = {
-    renderPointCloud: true,
+    renderPointCloud: false,
     renderCanvas: true,
-    renderFaceMesh: true,
+    renderFaceMesh: false,
     width: undefined,
     height: undefined,
     maxFaces: 1,
-    timeout: 500,
+    timeout: 300,
     backend: 'webgl',
     onRender: () => { },
     onRendered: () => { },
@@ -71,8 +71,7 @@ export default class Detector {
         canvas.className = 'detector-overlay';
 
         const video = document.createElement('video');
-        video.setAttribute('playinline', '');
-        video.setAttribute('muted', '');
+        video.setAttribute('playinline', 'playinline');
         video.style = `transform: scaleX(-1);
             display: none;
             width: auto;
@@ -211,17 +210,17 @@ export default class Detector {
         // rescale hand z axis according to center of the face
         if (handBox && faceBox) {
             const faceHalfWidth = (faceBox.xMax - faceBox.xMin) / 2;
-            const face_center_x = faceBox.xMin + faceHalfWidth;
+            const faceCenterX = faceBox.xMin + faceHalfWidth;
             let handXAvg = 0;
             for (let i = 0; i < handPoints.length; i++) {
                 handXAvg += handPoints[i][0];
             }
             handXAvg /= handPoints.length;
-            const distanceToFaceCenterX = Math.abs(handXAvg - face_center_x);
+            const distanceToFaceCenterX = Math.abs(handXAvg - faceCenterX);
             if (handXAvg > faceBox.xMin && handXAvg < faceBox.xMax) { // hand in front of the face
                 isInFrontOfFace = true;
-                const isFarFromCenter = (faceHalfWidth - distanceToFaceCenterX) / faceHalfWidth;  // from 1 to 0 depends on how far from face center x
-                const scaleFactor = (Math.atan(isFarFromCenter * 32 - 25) / (Math.PI / 2) + 1) / 2; 
+                const isFarFromCenter = (faceHalfWidth - distanceToFaceCenterX) / faceHalfWidth; // from 1 to 0 depends on how far from face center x
+                const scaleFactor = (Math.atan(isFarFromCenter * 32 - 25) / (Math.PI / 2) + 1) / 2;
                 for (let i = 0; i < handPoints.length; i++) {
                     handPoints[i][2] = handPoints[i][2] + 35 * scaleFactor;
                 }
@@ -271,7 +270,7 @@ export default class Detector {
             // Render lines for fingers and bounding boxes
             this.scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
             this.scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
-                if (minDistance && 
+                if (minDistance &&
                     (i == handPoints.length + minDistance.facePointIndex || i == minDistance.handPointIndex)) {
                     return 'red';
                 }
