@@ -38,11 +38,13 @@ async function main() {
 
   // Request permission
   if (isNotificationSupported) {
-    if (Notification.permission === 'granted') {
-      $('#notification-request').hide();
-    } else if (Notification.permission === 'denied') {
-      // TODO: Add a dismissible alert banner notifying the user
-    } else { // default
+    if (Notification.permission === 'denied') {
+      $('#notification-alert-content').text(
+        'Your browser has blocked notifications. If you would like to receive notification, please update your browser settings.'
+      );
+      $('#notification-alert').show();
+    } else if (Notification.permission === 'default') { // default
+      $('#notification-request').show();
       $('#notification-request-yes-btn').click(async () => {
         await Notification.requestPermission();
         $('#notification-request').hide();

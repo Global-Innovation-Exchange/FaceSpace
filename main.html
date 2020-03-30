@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <link rel="stylesheet" href="main.css">
-    <link id="favicon" rel="icon" href="favicon.ico" type="image/ico" >
+    <link id="favicon" rel="icon" href="favicon.ico" type="image/ico">
 
     <!-- FACEMESH PLOTTING SCRIPTS -->
     <!-- Load three.js -->
@@ -66,10 +66,7 @@
                     <div class="jumbotron">
                         <h1>👨 Don't Touch Your Face 👩‍</h1>
                     </div>
-                    <div class="alert alert-danger" id="face-touch-alert">
-                        <strong>🤦‍♂️ You're touching your face! 🤦‍♀️</strong>
-                    </div>
-                    <div class="card border-primary" id="notification-request">
+                    <div class="card border-primary" id="notification-request" style="display: none;">
                         <div class="card-body border-primary">
                             <p class="card-text text-primary">Do you wish to receive notification when you touch your
                                 face</p>
@@ -77,6 +74,16 @@
                             <button type="button" class="btn btn-danger" id="notification-request-no-btn">No</button>
                         </div>
                     </div>
+                    <div class="alert alert-warning" id="notification-alert" style="display: none;">
+                        <span id="notification-alert-content"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="alert alert-danger" id="face-touch-alert" style="display: none;">
+                        <strong>🤦‍♂️ You're touching your face! 🤦‍♀️</strong>
+                    </div>
+
                 </div>
             </div>
         </div>
