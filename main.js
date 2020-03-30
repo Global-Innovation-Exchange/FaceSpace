@@ -61,7 +61,6 @@ async function main() {
   $('#footer').hide();
 
   function updateUI() {
-    $('#face-touch-alert').show();
     document.querySelector('#totalCount').innerText = touchCounter;
     document.querySelector('#timesTouchedText').innerText =
       touchCounter === 1 ? 'time touched' : 'times touched';
@@ -70,6 +69,8 @@ async function main() {
     if (!touchBuffer[2]) {
       favicon.href = faviconUrl;
       $('#face-touch-alert').hide();
+    } else {
+      $('#face-touch-alert').show();
     }
   }
   const detectorParams = {
