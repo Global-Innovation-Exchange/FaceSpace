@@ -65,11 +65,10 @@ async function main() {
     document.querySelector('#timesTouchedText').innerText =
       touchCounter === 1 ? 'time touched' : 'times touched';
 
-    // if it is not currently touch
-    if (!touchBuffer[2]) {
-      $('#face-touch-alert').hide();
-    } else {
+    if (touchBuffer[1] && touchBuffer[2]) {
       $('#face-touch-alert').show();
+    } else {
+      $('#face-touch-alert').hide();
     }
   }
   const detectorParams = {
