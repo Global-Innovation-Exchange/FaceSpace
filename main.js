@@ -17,6 +17,8 @@
  */
 
 import Detector from './detector';
+import faviconUrl from './favicon.ico';
+import touchUrl from './touch.ico';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -29,17 +31,20 @@ const VIDEO_HEIGHT = 500;
 
 async function main() {
   const mobile = isMobile();
+  const favicon = document.getElementById('favicon');
   const isNotificationSupported = 'Notification' in window;
   const touchBuffer = [false, false, false];
   let touchCounter = 0;
 
   // Request permission
   if (isNotificationSupported) {
-    if (Notification.permission === 'granted') {
-      $('#notification-request').hide();
-    } else if (Notification.permission === 'denied') {
-      // TODO: Add a dismissible alert banner notifying the user
-    } else { // default
+    if (Notification.permission === 'denied') {
+      $('#notification-alert-content').text(
+        'Your browser has blocked notifications. If you would like to receive notification, please update your browser settings.'
+      );
+      $('#notification-alert').show();
+    } else if (Notification.permission === 'default') { // default
+      $('#notification-request').show();
       $('#notification-request-yes-btn').click(async () => {
         await Notification.requestPermission();
         $('#notification-request').hide();
@@ -50,22 +55,20 @@ async function main() {
     }
   }
 
-  $("#timesTouchedText").hide();
-  $("#totalCount").hide();
-  $("#title").hide();
-  $("#footer").hide();
+  $('#timesTouchedText').hide();
+  $('#totalCount').hide();
+  $('#title').hide();
+  $('#footer').hide();
 
   function updateUI() {
-    $("#face-touch-alert").show();
     document.querySelector('#totalCount').innerText = touchCounter;
     document.querySelector('#timesTouchedText').innerText =
       touchCounter === 1 ? 'time touched' : 'times touched';
-    window.document.title = '😱 - FaceSpace';
 
-    // if it is not currently touch
-    if (!touchBuffer[2]) {
-      window.document.title = '☺️ - FaceSpace';
-      $("#face-touch-alert").hide();
+    if (touchBuffer[1] && touchBuffer[2]) {
+      $('#face-touch-alert').show();
+    } else {
+      $('#face-touch-alert').hide();
     }
   }
   const detectorParams = {
@@ -81,8 +84,15 @@ async function main() {
       if (!touchBuffer[0] && touchBuffer[1] && touchBuffer[2]) {
         touchCounter++;
         if (isNotificationSupported && Notification.permission === 'granted') {
-          new Notification('🤭 You touched your face! 🤭');
+          const n = new Notification('🤭 You touched your face! 🤭');
+          n.onclick = n.close;
         }
+      }
+
+      if (result.detected) {
+        favicon.href = touchUrl;
+      } else {
+        favicon.href = faviconUrl;
       }
 
       // Update UI only the window on foreground.
@@ -94,10 +104,10 @@ async function main() {
   const detector = new Detector(document.getElementById('detector-container'), detectorParams);
   await detector.load();
 
-  $("#timesTouchedText").show();
-  $("#totalCount").show();
-  $("#title").show();
-  $("#footer").show();
+  $('#timesTouchedText').show();
+  $('#totalCount').show();
+  $('#title').show();
+  $('#footer').show();
   $('#loading-animation').remove();
 
   const gui = new dat.GUI();

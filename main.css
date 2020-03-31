@@ -3,21 +3,6 @@
     vertical-align: top;
   }
 
-  #detection-container {
-    border: solid 1px black;
-    position: relative;
-  } */
-
-  /* center the canvas within its wrapper */
-  #detection-container canvas {
-    transform: translate3d(-50%, -50%, 0);
-    left: 50%;
-    top: 50%;
-    position: absolute;
-  }
-
-/* UI */
-
 body, html{
   height: 100%;
   padding: 0;
@@ -29,18 +14,6 @@ body, html{
 .jumbotron{
   background-color: #FF9500 !important;
 }
-
-
-#start{
-  padding: 15px 32px;
-  font-size: 16px;
-}
-
-#camera{
-  padding: 10px 20px;
-  font-size: 12px;
-}
-
 
 #totalCount{
   display: inline-block;
