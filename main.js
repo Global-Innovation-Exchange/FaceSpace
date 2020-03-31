@@ -85,7 +85,8 @@ async function main() {
       if (!touchBuffer[0] && touchBuffer[1] && touchBuffer[2]) {
         touchCounter++;
         if (isNotificationSupported && Notification.permission === 'granted') {
-          new Notification('🤭 You touched your face! 🤭');
+          const n = new Notification('🤭 You touched your face! 🤭');
+          n.onclick = function() { this.close(); };
         }
       }
 
