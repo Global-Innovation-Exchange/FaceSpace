@@ -101,22 +101,27 @@ async function main() {
     },
   };
 
-  const detector = new Detector(document.getElementById('detector-container'), detectorParams);
-  await detector.load();
+  try {
+    const detector = new Detector(document.getElementById('detector-container'), detectorParams);
+    await detector.load();
+    $('#timesTouchedText').show();
+    $('#totalCount').show();
+    $('#title').show();
+    $('#footer').show();
+    $('#loading-animation').remove();
 
-  $('#timesTouchedText').show();
-  $('#totalCount').show();
-  $('#title').show();
-  $('#footer').show();
-  $('#loading-animation').remove();
+    const gui = new dat.GUI();
+    const state = {
+      'frame timeout': detectorParams.timeout,
+    };
+    gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
 
-  const gui = new dat.GUI();
-  const state = {
-    'frame timeout': detectorParams.timeout,
-  };
-  gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
+    detector.start();
+  } catch (err) {
+    $('#loading-animation-spin').remove();
+    $('#loading-animation-message').html('<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>');
+  }
 
-  detector.start();
 }
 
 main();
