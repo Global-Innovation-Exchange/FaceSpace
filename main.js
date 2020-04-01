@@ -101,19 +101,9 @@ async function main() {
     },
   };
 
-  let hasWebCam = undefined;
-
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    hasWebCam = true;
-  } catch (err) {
-    hasWebCam = false;
-  }
-
-  if (hasWebCam) {
     const detector = new Detector(document.getElementById('detector-container'), detectorParams);
     await detector.load();
-
     $('#timesTouchedText').show();
     $('#totalCount').show();
     $('#title').show();
@@ -127,7 +117,7 @@ async function main() {
     gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
 
     detector.start();
-  } else {
+  } catch (err) {
     console.log("no webcam ui");
     $('#loading-animation-spin').remove();
     $('#loading-animation-message')[0].innerHTML = "<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>"
