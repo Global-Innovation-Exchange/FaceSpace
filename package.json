@@ -18,7 +18,7 @@
   },
   "scripts": {
     "prebuild": "shx rm -rf dist",
-    "watch": "cross-env NODE_ENV=development parcel *.html --no-hmr --target browser --experimental-scope-hoisting",
+    "watch": "cross-env NODE_ENV=development parcel *.html --no-hmr --target browser",
     "build": "cross-env NODE_ENV=production parcel build *.html --target browser --public-url ./",
     "lint": "eslint .",
     "link-local": "yalc link @tensorflow-models/facemesh"
