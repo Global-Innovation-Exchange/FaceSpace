@@ -118,9 +118,8 @@ async function main() {
 
     detector.start();
   } catch (err) {
-    console.log("no webcam ui");
     $('#loading-animation-spin').remove();
-    $('#loading-animation-message')[0].innerHTML = "<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>"
+    $('#loading-animation-message').html('<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>');
   }
 
 }
