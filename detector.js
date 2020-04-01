@@ -113,6 +113,11 @@ export default class Detector {
         });
     }
 
+    /**
+     * Load the detector's models and video.
+     * @throws {DOMException} if a front facing camera is not found.
+     * See https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia.
+     */
     async load() {
         await Promise.all([
             this.setupCamera(),
