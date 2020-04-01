@@ -17,7 +17,8 @@
     "worker-timers": "^6.0.6"
   },
   "scripts": {
-    "watch": "cross-env NODE_ENV=development parcel *.html --no-hmr --target browser",
+    "prebuild": "shx rm -rf dist",
+    "watch": "cross-env NODE_ENV=development parcel *.html --no-hmr --target browser --experimental-scope-hoisting",
     "build": "cross-env NODE_ENV=production parcel build *.html --target browser --public-url ./",
     "lint": "eslint .",
     "link-local": "yalc link @tensorflow-models/facemesh"
@@ -35,6 +36,7 @@
     "eslint": "^6.8.0",
     "eslint-config-google": "^0.14.0",
     "parcel-bundler": "~1.12.4",
+    "shx": "^0.3.2",
     "yalc": "~1.0.0-pre.27"
   },
   "eslintConfig": {
