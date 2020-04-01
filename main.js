@@ -101,22 +101,38 @@ async function main() {
     },
   };
 
-  const detector = new Detector(document.getElementById('detector-container'), detectorParams);
-  await detector.load();
+  let hasWebCam = undefined;
 
-  $('#timesTouchedText').show();
-  $('#totalCount').show();
-  $('#title').show();
-  $('#footer').show();
-  $('#loading-animation').remove();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    hasWebCam = true;
+  } catch (err) {
+    hasWebCam = false;
+  }
 
-  const gui = new dat.GUI();
-  const state = {
-    'frame timeout': detectorParams.timeout,
-  };
-  gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
+  if (hasWebCam) {
+    const detector = new Detector(document.getElementById('detector-container'), detectorParams);
+    await detector.load();
 
-  detector.start();
+    $('#timesTouchedText').show();
+    $('#totalCount').show();
+    $('#title').show();
+    $('#footer').show();
+    $('#loading-animation').remove();
+
+    const gui = new dat.GUI();
+    const state = {
+      'frame timeout': detectorParams.timeout,
+    };
+    gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
+
+    detector.start();
+  } else {
+    console.log("no webcam ui");
+    $('#loading-animation-spin').remove();
+    $('#loading-animation-message')[0].innerHTML = "<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>"
+  }
+
 }
 
 main();
