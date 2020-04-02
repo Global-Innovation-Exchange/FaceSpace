@@ -43,9 +43,11 @@ function getShortestDistance(handPoints, facePoints) {
 }
 
 const defaultParams = {
-    renderPointCloud: false,
     renderCanvas: true,
     renderFaceMesh: false,
+    renderPointCloud: false,
+    renderBoundingBox: false,
+    renderContactPoint: false,
     width: undefined,
     height: undefined,
     maxFaces: 1,
@@ -95,7 +97,7 @@ export default class Detector {
         this.video = video;
         this.scatterContainer = scatterContainer;
         this.isStarted = false;
-        this.detectionHistory = new DetectionHistory(1000 * 60 * 2);
+        this.detectionHistory = new DetectionHistory(this.params.detectionHistory);
     }
 
     async setupCamera() {
@@ -266,8 +268,8 @@ export default class Detector {
             const dataset = new ScatterGL.Dataset(
                 handPoints.concat(facePoints)
                     .concat(ANCHOR_POINTS)
-                    .concat(handBoxPoints)
-                    .concat(faceBoxPoints)
+                    .concat(this.params.renderBoundingBox ? handBoxPoints : [])
+                    .concat(this.params.renderBoundingBox ? faceBoxPoints : [])
             );
             if (!this.scatterGLHasInitialized) {
                 this.scatterGL.render(dataset);
@@ -279,7 +281,7 @@ export default class Detector {
             // Render lines for fingers and bounding boxes
             this.scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
             this.scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
-                if (minDistance &&
+                if (minDistance && this.params.renderContactPoint &&
                     (i == handPoints.length + minDistance.facePointIndex || i == minDistance.handPointIndex)) {
                     return 'red';
                 }
