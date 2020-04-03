@@ -1,4 +1,4 @@
-type PointCoordinates = [number, number, number];
+import { Coords3D } from './type';
 
 class BoundingBox {
     public xMin: number;
@@ -29,7 +29,7 @@ class BoundingBox {
         return this.zMax - Math.abs(this.zMax - this.zMin);
     }
 
-    public static createFromPoints(objectPoints: PointCoordinates[], xOffset = 0) {
+    public static createFromPoints(objectPoints: Coords3D, xOffset = 0) {
         let box = undefined;
 
         for (let i = 0; i < objectPoints.length; i++) {
