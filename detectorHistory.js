@@ -38,27 +38,29 @@ export default class DetectorHistory {
         this._cleanup();
     }
 
+    _getColorHandler(color) {
+        const fn = scale(color);
+        const colorHandler = {
+            get: function(target, name) {
+                return name in target ? fn(target[name]) : fn(0);
+            },
+        };
+        return colorHandler;
+    }
+
     _getMap(countMap, color = null) {
         this._cleanup();
         const max = Math.max(...Object.values(countMap), 0);
         const copy = Object.assign({}, countMap);
 
         if (max !== 0) {
-            // Normalizing 
+            // Normalizing
             Object.keys(copy).forEach(k => { copy[k] /= max; });
         }
 
-        if (color) {
-            const fn = scale(color);
-            const colorHandler = {
-                get: function (target, name) {
-                    return name in target ? fn(target[name]) : fn(0);
-                },
-            };
-            return new Proxy(copy, colorHandler);
-        }
-
-        return new Proxy(copy, handler);
+        return new Proxy(
+            copy,
+            color ? this._getColorHandler(color) : handler);
     }
 
     getFaceMap(color = null) {
