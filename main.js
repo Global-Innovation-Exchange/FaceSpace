@@ -33,7 +33,7 @@ async function main() {
   const mobile = isMobile();
   const favicon = document.getElementById('favicon');
   const isNotificationSupported = 'Notification' in window;
-  const touchBuffer = [false, false, false];
+  let isDetected = false;
   let touchCounter = 0;
 
   // Request permission
@@ -65,7 +65,7 @@ async function main() {
     document.querySelector('#timesTouchedText').innerText =
       touchCounter === 1 ? 'time touched' : 'times touched';
 
-    if (touchBuffer[1] && touchBuffer[2]) {
+    if (isDetected) {
       $('#face-touch-alert').show();
     } else {
       $('#face-touch-alert').hide();
@@ -78,10 +78,8 @@ async function main() {
     timeout: 300,
     renderCanvas: true,
     onRendered: (result) => {
-      touchBuffer.push(result.detected);
-      touchBuffer.shift();
-
-      if (!touchBuffer[0] && touchBuffer[1] && touchBuffer[2]) {
+      const detection = result.detection;
+      if (detection.isNew) {
         touchCounter++;
         if (isNotificationSupported && Notification.permission === 'granted') {
           const n = new Notification('🤭 You touched your face! 🤭');
@@ -89,7 +87,8 @@ async function main() {
         }
       }
 
-      if (result.detected) {
+      isDetected = detection.isDetected;
+      if (isDetected) {
         favicon.href = touchUrl;
       } else {
         favicon.href = faviconUrl;

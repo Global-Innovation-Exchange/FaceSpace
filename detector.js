@@ -10,6 +10,28 @@ import { fingerLookup, drawFacePredictions, drawHandPredictions } from './draw';
 import { BoundingBox, boxLookup } from './box';
 import DetectionHistory from './detectorHistory';
 
+class DetectionBuffer {
+    constructor(size) {
+        this.buffer = [];
+        for(let i = 0; i < (size + 1); i++) {
+            this.buffer.push(false);
+        }
+    }
+
+    push(isDetected) {
+        this.buffer.push(isDetected);
+        this.buffer.shift();
+    }
+
+    get detection() {
+        const isDetected = this.buffer.slice(1).every(i => i);
+        return {
+            isNew: !this.buffer[0] && isDetected,
+            isDetected,
+        };
+    }
+}
+
 function getFacePoints(predictions) {
     const pointsData = predictions.map(prediction =>
         prediction.scaledMesh.map(point => [-point[0], -point[1], -point[2]]));
@@ -48,11 +70,13 @@ const defaultParams = {
     renderPointCloud: false,
     renderBoundingBox: false,
     renderContactPoint: false,
+    renderHeatmap: false,
     width: undefined,
     height: undefined,
     maxFaces: 1,
     timeout: 300, // 0.3 sec
     detectionHistory: 1000 * 60 * 60, // An hour
+    detectionBufferSize: 2,
     backend: 'webgl',
     onRender: () => { },
     onRendered: () => { },
@@ -98,6 +122,7 @@ export default class Detector {
         this.scatterContainer = scatterContainer;
         this.isStarted = false;
         this.detectionHistory = new DetectionHistory(this.params.detectionHistory);
+        this.detectionBuffer = new DetectionBuffer(this.params.detectionBufferSize);
     }
 
     async setupCamera() {
@@ -212,13 +237,12 @@ export default class Detector {
 
         const handPoints = getHandPoints(hp);
         const facePoints = getFacePoints(fp);
-        let handBox = BoundingBox.createFromPoints(handPoints);
         const faceBox = BoundingBox.createFromPoints(facePoints, 10);
         const faceBoxPoints = faceBox ? faceBox.toPoints() : [];
         let isInFrontOfFace = false;
 
         // rescale hand z axis according to center of the face
-        if (handBox && faceBox) {
+        if (handPoints.length && faceBox.length) {
             const faceHalfWidth = (faceBox.xMax - faceBox.xMin) / 2;
             const faceCenterX = faceBox.xMin + faceHalfWidth;
             let handXAvg = 0;
@@ -237,14 +261,32 @@ export default class Detector {
             }
         }
 
-        // regenerate hand bbox after scaling z axis
-        handBox = BoundingBox.createFromPoints(handPoints);
+        const handBox = BoundingBox.createFromPoints(handPoints);
         const handBoxPoints = handBox ? handBox.toPoints() : [];
 
         const deltaVolume = (handBox && faceBox)
             ? handBox.getIntersectionVolume(faceBox)
             : 0.0;
         const minDistance = getShortestDistance(handPoints, facePoints);
+
+        let detected = false;
+        if (handBox && faceBox && !!minDistance) {
+            if (isInFrontOfFace) {
+                // The hand bounding box is with in the face box,
+                // which means the hand is in front of the face
+                detected = minDistance.distance < 10;
+            } else {
+                // The hand is on the side
+                detected = minDistance.distance < 30;
+            }
+        }
+        this.detectionBuffer.push(detected);
+        const detection = this.detectionBuffer.detection;
+
+        if (detection.isDetected) {
+            this.params.onDetected();
+            this.detectionHistory.push(minDistance.handPointIndex, minDistance.facePointIndex);
+        }
 
         if (this.params.renderPointCloud && this.scatterGL) {
             // These anchor points allow the hand pointcloud to resize according to its
@@ -285,12 +327,12 @@ export default class Detector {
                     (i == handPoints.length + minDistance.facePointIndex || i == minDistance.handPointIndex)) {
                     return 'red';
                 }
-
+                const renderHeatmap = this.params.renderHeatmap;
                 let length = handPoints.length;
-                if (i < length) return handHeatmap[i].toString();
+                if (i < length) return renderHeatmap ?  handHeatmap[i].toString() : 'skyblue';
 
                 length = length + facePoints.length;
-                if (i < length) return faceHeatmap[i - handPoints.length].toString();
+                if (i < length) return renderHeatmap ? faceHeatmap[i - handPoints.length].toString() : 'lightred';
 
                 length = length + ANCHOR_POINTS.length;
                 if (i < length) return 'white';
@@ -300,23 +342,7 @@ export default class Detector {
             this.scatterGLHasInitialized = true;
         }
 
-        let detected = false;
-        if (handBox && faceBox && !!minDistance) {
-            if (isInFrontOfFace) {
-                // The hand bounding box is with in the face box,
-                // which means the hand is in front of the face
-                detected = minDistance.distance < 10;
-            } else {
-                // The hand is on the side
-                detected = minDistance.distance < 30;
-            }
-        }
-
-        if (detected) {
-            this.params.onDetected();
-            this.detectionHistory.push(minDistance.handPointIndex, minDistance.facePointIndex);
-        }
-        this.params.onRendered({ handPoints, facePoints, handBox, faceBox, deltaVolume, minDistance, detected });
+        this.params.onRendered({ handPoints, facePoints, handBox, faceBox, deltaVolume, minDistance, detection });
     }
 
     async _loop() {
