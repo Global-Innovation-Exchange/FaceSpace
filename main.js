@@ -112,15 +112,18 @@ async function main() {
     const gui = new dat.GUI();
     const state = {
       'frame timeout': detectorParams.timeout,
+      'show heat map': false,
     };
     gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
+    gui.add(state, 'show heat map').onChange((value) => {
+        detector.update({ renderPointCloud: value, renderHeatmap: value });
+    });
 
     detector.start();
   } catch (err) {
     $('#loading-animation-spin').remove();
     $('#loading-animation-message').html('<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>');
   }
-
 }
 
 main();
