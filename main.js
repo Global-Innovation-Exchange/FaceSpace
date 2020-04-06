@@ -20,6 +20,7 @@ import Detector from './detector';
 import faviconUrl from './favicon.ico';
 import touchUrl from './touch.ico';
 import popUrl from './pop.mp3';
+import { Howl } from 'howler';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -32,11 +33,12 @@ const VIDEO_HEIGHT = 500;
 
 async function main() {
   const mobile = isMobile();
+  const isFirefox = (navigator.userAgent.toLowerCase().indexOf('firefox') > -1);
   const favicon = document.getElementById('favicon');
   const isNotificationSupported = 'Notification' in window;
   const touchBuffer = [false, false, false];
 
-  let alertAudio = new Audio(popUrl);
+  let alertAudio = isFirefox ? null : new Howl({ src: [popUrl], html5: true });
   let touchCounter = 0;
 
   // Request permission
@@ -117,13 +119,16 @@ async function main() {
     'sound': 'pop',
   };
   gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
-  gui.add(state, 'sound', ['none', 'pop', 'coronavirus']).onChange((value) => {
-    if (value === 'pop') {
-      alertAudio = new Audio(popUrl);
-    } else {
-      alertAudio = null;
-    }
-  });
+  // Firefox has a default notification sound that can't be turned off so not supporting sound.
+  if (!isFirefox) {
+    gui.add(state, 'sound', ['none', 'pop', 'coronavirus']).onChange((value) => {
+      if (value === 'pop') {
+        alertAudio = new Howl({ src: [popUrl], html5: true });
+      } else {
+        alertAudio = null;
+      }
+    });
+  }
 
 
   detector.start();
