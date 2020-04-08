@@ -1,5 +1,4 @@
 .detector-canvas-wrapper, .detector-scatter-gl-container, #detection-container {
-    display: inline-block;
     vertical-align: top;
   }
 
