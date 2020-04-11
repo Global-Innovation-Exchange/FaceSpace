@@ -13,6 +13,7 @@
     "@tensorflow-models/handpose": "^0.0.3",
     "@tensorflow/tfjs-converter": "^1.7.2",
     "@tensorflow/tfjs-core": "^1.7.2",
+    "chroma-js": "^2.1.0",
     "stats.js": "^0.17.0",
     "worker-timers": "^6.0.7"
   },
