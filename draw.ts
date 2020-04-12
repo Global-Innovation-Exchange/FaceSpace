@@ -66,12 +66,10 @@ function drawHandKeyPoints(ctx: CanvasRenderingContext2D, keypoints: Coords3D) {
         drawPoint(ctx, x - 2, y - 2, 3);
     }
 
-    const fingers = Object.keys(fingerLookup);
-    for (let i = 0; i < fingers.length; i++) {
-        const finger = fingers[i];
-        const points = fingerLookup[finger].map((idx: number) => keypoints[idx]);
+    Object.values(fingerLookup).forEach(fingerIndices => {
+        const points = fingerIndices.map((idx: number) => keypoints[idx]);
         drawPath(ctx, points, false);
-    }
+    });
 }
 
 function drawFacePredictions(ctx: CanvasRenderingContext2D, predictions: FacePrediction[], drawMesh: boolean) {
