@@ -104,6 +104,7 @@ interface DetectorParams {
         detection: Detection
     }) => void,
     onDetected: () => void,
+    [key: string]: any,
 }
 
 const defaultParams: DetectorParams = {
@@ -286,8 +287,8 @@ export default class Detector {
         this.params.onRender();
         const videoPixels = tf.browser.fromPixels(this.video);
         const [fp, hp] = await Promise.all([
-            this.faceModel.estimateFaces(videoPixels),
-            this.handModel.estimateHands(videoPixels),
+            this.faceModel.estimateFaces(videoPixels) as Promise<FacePrediction[]>,
+            this.handModel.estimateHands(videoPixels) as Promise<HandPrediction[]>,
         ]);
         videoPixels.dispose();
 
@@ -431,7 +432,7 @@ export default class Detector {
         this.isStarted = false;
     }
 
-    update(params) {
+    update(params: DetectorParams) {
         const keys = Object.keys(params).filter(k => modifiableParams.has(k));
         keys.forEach(k => {
             this.params[k] = params[k];
