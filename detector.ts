@@ -1,9 +1,7 @@
 import * as facemesh from '@tensorflow-models/facemesh';
 import * as handpose from '@tensorflow-models/handpose';
 import * as tf from '@tensorflow/tfjs-core';
-// Use the non type definition once 
-// https://github.com/PAIR-code/scatter-gl/issues/40 is fixed
-import type { ScatterGL } from 'scatter-gl';
+import { ScatterGL } from 'scatter-gl';
 
 import { sleep } from './utils';
 import { fingerLookup, drawFacePredictions, drawHandPredictions } from './draw';

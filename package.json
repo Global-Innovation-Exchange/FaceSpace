@@ -15,7 +15,7 @@
     "@tensorflow/tfjs-core": "^1.7.2",
     "@types/chroma-js": "^2.0.0",
     "chroma-js": "^2.1.0",
-    "scatter-gl": "^0.0.4",
+    "scatter-gl": "^0.0.5",
     "stats.js": "^0.17.0",
     "worker-timers": "^6.0.7"
   },
