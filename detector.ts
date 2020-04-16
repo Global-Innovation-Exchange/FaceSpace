@@ -151,7 +151,7 @@ export default class Detector {
     videoHeight: number;
     scatterGL: ScatterGL;
 
-    constructor(containerElement: HTMLElement, params?: DetectorParams) {
+    constructor(containerElement: HTMLElement, params?: Partial<DetectorParams>) {
         params = Object.assign({}, defaultParams, params);
 
         const canvasWrapper = document.createElement('div') as HTMLDivElement;
@@ -432,7 +432,7 @@ export default class Detector {
         this.isStarted = false;
     }
 
-    update(params: DetectorParams) {
+    update(params: Partial<DetectorParams>) {
         const keys = Object.keys(params).filter(k => modifiableParams.has(k));
         keys.forEach(k => {
             this.params[k] = params[k];
