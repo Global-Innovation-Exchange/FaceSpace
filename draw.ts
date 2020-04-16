@@ -1,12 +1,18 @@
 import { TRIANGULATION } from './triangulation';
+import {
+    Coords3D,
+    Coords2DPlus,
+    FacePrediction,
+    HandPrediction
+} from './type';
 
-function drawPoint(ctx, y, x, r) {
+function drawPoint(ctx: CanvasRenderingContext2D, y: number, x: number, r: number) {
     ctx.beginPath();
     ctx.arc(x, y, r, 0, 2 * Math.PI);
     ctx.fill();
 }
 
-function drawPath(ctx, points, closePath) {
+function drawPath(ctx: CanvasRenderingContext2D, points: Coords2DPlus, closePath: boolean) {
     const region = new Path2D();
     region.moveTo(points[0][0], points[0][1]);
     for (let i = 1; i < points.length; i++) {
@@ -20,7 +26,7 @@ function drawPath(ctx, points, closePath) {
     ctx.stroke(region);
 }
 
-function drawFaceKeyPoints(ctx, keypoints, drawMesh) {
+function drawFaceKeyPoints(ctx: CanvasRenderingContext2D, keypoints: Coords3D, drawMesh: boolean) {
     if (drawMesh) {
         for (let i = 0; i < TRIANGULATION.length / 3; i++) {
             const points = [
@@ -51,7 +57,7 @@ const fingerLookup = {
     pinky: [0, 17, 18, 19, 20],
 };
 
-function drawHandKeyPoints(ctx, keypoints) {
+function drawHandKeyPoints(ctx: CanvasRenderingContext2D, keypoints: Coords3D) {
     const keypointsArray = keypoints;
 
     for (let i = 0; i < keypointsArray.length; i++) {
@@ -60,26 +66,24 @@ function drawHandKeyPoints(ctx, keypoints) {
         drawPoint(ctx, x - 2, y - 2, 3);
     }
 
-    const fingers = Object.keys(fingerLookup);
-    for (let i = 0; i < fingers.length; i++) {
-        const finger = fingers[i];
-        const points = fingerLookup[finger].map(idx => keypoints[idx]);
+    Object.values(fingerLookup).forEach(fingerIndices => {
+        const points = fingerIndices.map((idx: number) => keypoints[idx]);
         drawPath(ctx, points, false);
-    }
+    });
 }
 
-function drawFacePredictions(ctx, predictions, drawMesh) {
-  predictions.forEach((prediction) => {
-    const keyPoints = prediction.scaledMesh;
-    drawFaceKeyPoints(ctx, keyPoints, drawMesh);
-  });
+function drawFacePredictions(ctx: CanvasRenderingContext2D, predictions: FacePrediction[], drawMesh: boolean) {
+    predictions.forEach((prediction) => {
+        const keyPoints = prediction.scaledMesh;
+        drawFaceKeyPoints(ctx, keyPoints, drawMesh);
+    });
 }
 
-function drawHandPredictions(ctx, predictions) {
-  predictions.forEach((prediction) => {
-    const keyPoints = prediction.landmarks;
-    drawHandKeyPoints(ctx, keyPoints);
-  });
+function drawHandPredictions(ctx: CanvasRenderingContext2D, predictions: HandPrediction[]) {
+    predictions.forEach((prediction) => {
+        const keyPoints = prediction.landmarks;
+        drawHandKeyPoints(ctx, keyPoints);
+    });
 }
 export {
     fingerLookup,

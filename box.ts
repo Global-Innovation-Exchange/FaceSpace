@@ -1,5 +1,14 @@
+import { Coords3D } from './type';
+
 class BoundingBox {
-    constructor(xMin, xMax, yMin, yMax, zMin, zMax) {
+    public xMin: number;
+    public xMax: number;
+    public yMin: number;
+    public yMax: number;
+    public zMin: number;
+    public zMax: number;
+
+    constructor(xMin: number, xMax: number, yMin: number, yMax: number, zMin: number, zMax: number) {
         this.xMin = xMin;
         this.xMax = xMax;
         this.yMin = yMin;
@@ -8,19 +17,19 @@ class BoundingBox {
         this.zMax = zMax;
     }
 
-    get xCenter() {
+    public get xCenter() {
         return this.xMax - Math.abs(this.xMax - this.xMin);
     }
 
-    get yCenter() {
+    public get yCenter() {
         return this.yMax - Math.abs(this.yMax - this.yMin);
     }
 
-    get zCenter() {
+    public get zCenter() {
         return this.zMax - Math.abs(this.zMax - this.zMin);
     }
 
-    static createFromPoints(objectPoints, xOffset = 0) {
+    public static createFromPoints(objectPoints: Coords3D, xOffset = 0) {
         let box = undefined;
 
         for (let i = 0; i < objectPoints.length; i++) {
@@ -56,7 +65,7 @@ class BoundingBox {
             : undefined;
     }
 
-    getIntersectionVolume(box) {
+    public getIntersectionVolume(box: BoundingBox) {
         if (!box) return 0.0;
 
         // determine the coordinates of the intersection rectangle
@@ -74,7 +83,8 @@ class BoundingBox {
 
         return (xMax - xMin) * (yMax - yMin) * (zMax - zMin);
     }
-    toPoints() {
+
+    public toPoints() {
         return [
             [this.xMin, this.yMin, this.zMin],
             [this.xMin, this.yMin, this.zMax],
