@@ -17,8 +17,8 @@
  */
 
 import Detector from './detector';
-import faviconUrl from './favicon.ico';
-import touchUrl from './touch.ico';
+import faviconUrl from './assets/favicon/favicon.ico';
+import touchUrl from './assets/favicon/touch.ico';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
