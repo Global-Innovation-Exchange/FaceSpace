@@ -40,7 +40,7 @@ async function main() {
   if (isNotificationSupported) {
     if (Notification.permission === 'denied') {
       $('#notification-alert-content').text(
-        'Your browser has blocked notifications. If you would like to receive notification, please update your browser settings.'
+        'Your browser has blocked notifications. If you would like to receive notifications, please update your browser settings.'
       );
       $('#notification-alert').show();
     } else if (Notification.permission === 'default') { // default
