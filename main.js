@@ -17,8 +17,6 @@
  */
 
 import Detector from './detector';
-import faviconUrl from './favicon.ico';
-import touchUrl from './touch.ico';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -31,7 +29,6 @@ const VIDEO_HEIGHT = 500;
 
 async function main() {
   const mobile = isMobile();
-  const favicon = document.getElementById('favicon');
   const isNotificationSupported = 'Notification' in window;
   let isDetected = false;
   let touchCounter = 0;
@@ -40,7 +37,7 @@ async function main() {
   if (isNotificationSupported) {
     if (Notification.permission === 'denied') {
       $('#notification-alert-content').text(
-        'Your browser has blocked notifications. If you would like to receive notification, please update your browser settings.'
+        'Your browser has blocked notifications. If you would like to receive notifications, please update your browser settings.'
       );
       $('#notification-alert').show();
     } else if (Notification.permission === 'default') { // default
@@ -55,14 +52,9 @@ async function main() {
     }
   }
 
-  $('#timesTouchedText').hide();
-  $('#totalCount').hide();
-  $('#title').hide();
-  $('#footer').hide();
-
   function updateUI() {
-    document.querySelector('#totalCount').innerText = touchCounter;
-    document.querySelector('#timesTouchedText').innerText =
+    document.querySelector('#total-count').innerText = touchCounter;
+    document.querySelector('#times-touched-txt').innerText =
       touchCounter === 1 ? 'time touched' : 'times touched';
 
     if (isDetected) {
@@ -82,18 +74,12 @@ async function main() {
       if (detection.isNew) {
         touchCounter++;
         if (isNotificationSupported && Notification.permission === 'granted') {
-          const n = new Notification('🤭 You touched your face! 🤭');
+          const n = new Notification('You touched your face! 🤦');
           n.onclick = n.close;
         }
       }
 
       isDetected = detection.isDetected;
-      if (isDetected) {
-        favicon.href = touchUrl;
-      } else {
-        favicon.href = faviconUrl;
-      }
-
       // Update UI only the window on foreground.
       // requestAnimationFrame will stop running once the window is in background
       requestAnimationFrame(updateUI);
@@ -103,26 +89,34 @@ async function main() {
   try {
     const detector = new Detector(document.getElementById('detector-container'), detectorParams);
     await detector.load();
-    $('#timesTouchedText').show();
-    $('#totalCount').show();
-    $('#title').show();
-    $('#footer').show();
-    $('#loading-animation').remove();
+    $('#loading-container').remove();
+    $('#main-container').show();
 
-    const gui = new dat.GUI();
-    const state = {
-      'frame timeout': detectorParams.timeout,
-      'show heat map': false,
-    };
-    gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
-    gui.add(state, 'show heat map').onChange((value) => {
-        detector.update({ renderPointCloud: value, renderHeatmap: value });
+    // Set up the tuning knobs
+    const $timeoutRange = $('#timeout-range');
+    const $timeoutInput = $('#timeout-input');
+    $timeoutRange.val(detectorParams.timeout);
+    $timeoutInput.val(detectorParams.timeout);
+    $timeoutRange.change(event => {
+      const value = event.target.value;
+      $timeoutInput.val(value);
+      detector.update({ timeout: value });
+    });
+    $timeoutInput.change(event => {
+      const value = event.target.value;
+      $timeoutRange.val(value);
+      detector.update({ timeout: value });
+    });
+    const $heatmapInput = $('#heatmap-input');
+    $heatmapInput.change(event => {
+      const value = $(event.target).is(':checked');
+      detector.update({ renderPointCloud: value, renderHeatmap: value });
     });
 
     detector.start();
   } catch (err) {
-    $('#loading-animation-spin').remove();
-    $('#loading-animation-message').html('<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>');
+    $('#loading-spin').remove();
+    $('#loading-message').html('<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>');
   }
 }
 

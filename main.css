@@ -2,24 +2,7 @@
     vertical-align: top;
   }
 
-body, html{
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  scroll-behavior: smooth;
-  width: 100%;
-}
-
-.jumbotron{
-  background-color: #FF9500 !important;
-}
-
-#totalCount{
-  display: inline-block;
-  font-size: 6em;
-  margin-block-start: 0em;
-  margin-block-end: 0em;
-  margin-inline-start: 0px;
-  margin-inline-end: 0px;
-  font-weight: bold;
+.jumbotron {
+  /* Reduce the height of the jumbotron */
+  padding: 1rem 1rem;
 }
