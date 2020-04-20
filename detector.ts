@@ -175,7 +175,7 @@ export default class Detector {
         scatterContainer.className = 'detector-scatter-gl-container';
         containerElement.appendChild(scatterContainer);
 
-        this.params = params;
+        this.params = params as DetectorParams;
         this.containerElement = containerElement;
         this.canvasWrapper = canvasWrapper;
         this.canvas = canvas;
@@ -242,8 +242,6 @@ export default class Detector {
 
         this.scatterContainer.style.width = `${videoWidth}px`;
         this.scatterContainer.style.height = `${videoHeight}px`;
-        this.scatterGL = new ScatterGL(this.scatterContainer,
-            { 'rotateOnStart': false, 'selectEnabled': false });
 
         if (!this.params.renderPointCloud) {
             this.scatterContainer.style.display = 'none';
@@ -351,7 +349,7 @@ export default class Detector {
             this.detectionHistory.push(minDistance.handPointIndex, minDistance.facePointIndex);
         }
 
-        if (this.params.renderPointCloud && this.scatterGL) {
+        if (this.params.renderPointCloud) {
             // These anchor points allow the hand pointcloud to resize according to its
             // position in the input.
             const ANCHOR_POINTS = [
@@ -379,6 +377,8 @@ export default class Detector {
                     .concat((this.params.renderBoundingBox ? faceBoxPoints : []) as Coords3D)
             );
             if (!this.hasScatterGLRendered) {
+                this.scatterGL = new ScatterGL(this.scatterContainer,
+                    { 'rotateOnStart': false, 'selectEnabled': false });
                 this.scatterGL.render(dataset);
             } else {
                 this.scatterGL.updateDataset(dataset);
