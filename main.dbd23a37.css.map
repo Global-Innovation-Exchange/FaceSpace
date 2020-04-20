@@ -1,0 +1,1 @@
+{"version":3,"sources":["main.css"],"names":[],"mappings":"AAAA,6EACI,kBACF,CAEF,WAEE,YACF","file":"main.dbd23a37.css","sourceRoot":"..","sourcesContent":[".detector-canvas-wrapper, .detector-scatter-gl-container, #detection-container {\n    vertical-align: top;\n  }\n\n.jumbotron {\n  /* Reduce the height of the jumbotron */\n  padding: 1rem 1rem;\n}"]}
