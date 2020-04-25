@@ -16,11 +16,9 @@
  * =============================================================================
  */
 
-import Detector from './detector';
-import faviconUrl from './favicon.ico';
-import touchUrl from './touch.ico';
-import popUrl from './pop.mp3';
 import { Howl } from 'howler';
+import popUrl from './assets/pop.mp3';
+import Detector from './detector';
 
 function isMobile() {
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -33,19 +31,16 @@ const VIDEO_HEIGHT = 500;
 
 async function main() {
   const mobile = isMobile();
-  const isFirefox = (navigator.userAgent.toLowerCase().indexOf('firefox') > -1);
-  const favicon = document.getElementById('favicon');
   const isNotificationSupported = 'Notification' in window;
-  const touchBuffer = [false, false, false];
-
-  let alertAudio = isFirefox ? null : new Howl({ src: [popUrl], html5: true });
+  let isDetected = false;
   let touchCounter = 0;
+  let alertAudio = null;
 
   // Request permission
   if (isNotificationSupported) {
     if (Notification.permission === 'denied') {
       $('#notification-alert-content').text(
-        'Your browser has blocked notifications. If you would like to receive notification, please update your browser settings.'
+        'Your browser has blocked notifications. If you would like to receive notifications, please update your browser settings.'
       );
       $('#notification-alert').show();
     } else if (Notification.permission === 'default') { // default
@@ -60,20 +55,14 @@ async function main() {
     }
   }
 
-  $('#timesTouchedText').hide();
-  $('#totalCount').hide();
-  $('#title').hide();
-  $('#footer').hide();
-
   function updateUI() {
-    $('#face-touch-alert').show();
-    document.querySelector('#totalCount').innerText = touchCounter;
-    document.querySelector('#timesTouchedText').innerText =
+    document.querySelector('#total-count').innerText = touchCounter;
+    document.querySelector('#times-touched-txt').innerText =
       touchCounter === 1 ? 'time touched' : 'times touched';
 
-    // if it is not currently touch
-    if (!touchBuffer[2]) {
-      favicon.href = faviconUrl;
+    if (isDetected) {
+      $('#face-touch-alert').show();
+    } else {
       $('#face-touch-alert').hide();
     }
   }
@@ -84,54 +73,66 @@ async function main() {
     timeout: 300,
     renderCanvas: true,
     onRendered: (result) => {
-      touchBuffer.push(result.detected);
-      touchBuffer.shift();
-
-      if (!touchBuffer[0] && touchBuffer[1] && touchBuffer[2]) {
+      const detection = result.detection;
+      if (detection.isNew) {
         touchCounter++;
         if (alertAudio) {
           alertAudio.play();
         }
         if (isNotificationSupported && Notification.permission === 'granted') {
-          new Notification('🤭 You touched your face! 🤭');
-          favicon.href = touchUrl;
+          const n = new Notification('You touched your face! 🤦');
+          n.onclick = n.close;
         }
       }
 
+      isDetected = detection.isDetected;
       // Update UI only the window on foreground.
       // requestAnimationFrame will stop running once the window is in background
       requestAnimationFrame(updateUI);
     },
   };
 
-  const detector = new Detector(document.getElementById('detector-container'), detectorParams);
-  await detector.load();
+  try {
+    const detector = new Detector(document.getElementById('detector-container'), detectorParams);
+    await detector.load();
+    $('#loading-container').remove();
+    $('#main-container').show();
 
-  $('#timesTouchedText').show();
-  $('#totalCount').show();
-  $('#title').show();
-  $('#footer').show();
-  $('#loading-animation').remove();
-
-  const gui = new dat.GUI();
-  const state = {
-    'frame timeout': detectorParams.timeout,
-    'sound': 'pop',
-  };
-  gui.add(state, 'frame timeout', 100, 1000).onChange((value) => { detector.update({ timeout: value }); });
-  // Firefox has a default notification sound that can't be turned off so not supporting sound.
-  if (!isFirefox) {
-    gui.add(state, 'sound', ['none', 'pop', 'coronavirus']).onChange((value) => {
+    // Set up the tuning knobs
+    const $timeoutRange = $('#timeout-range');
+    const $timeoutInput = $('#timeout-input');
+    $timeoutRange.val(detectorParams.timeout);
+    $timeoutInput.val(detectorParams.timeout);
+    $timeoutRange.change(event => {
+      const value = event.target.value;
+      $timeoutInput.val(value);
+      detector.update({ timeout: value });
+    });
+    $timeoutInput.change(event => {
+      const value = event.target.value;
+      $timeoutRange.val(value);
+      detector.update({ timeout: value });
+    });
+    const $heatmapInput = $('#heatmap-input');
+    $heatmapInput.change(event => {
+      const value = $(event.target).is(':checked');
+      detector.update({ renderPointCloud: value, renderHeatmap: value });
+    });
+    const $soundInput = $('#sound-input');
+    $soundInput.change(event => {
+      const value = event.target.value;
       if (value === 'pop') {
         alertAudio = new Howl({ src: [popUrl], html5: true });
       } else {
         alertAudio = null;
       }
     });
+
+    detector.start();
+  } catch (err) {
+    $('#loading-spin').remove();
+    $('#loading-message').html('<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>');
   }
-
-
-  detector.start();
 }
 
 main();
