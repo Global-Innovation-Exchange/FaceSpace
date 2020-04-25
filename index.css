@@ -1,3 +1,39 @@
-.jumbotron{
-    background-color: #FF9500 !important;
+.jumbotron {
+    background-image: url(./assets/galaxy.jpg);
+    background-position: center; /* Center the image */
+    background-repeat: no-repeat; /* Do not repeat the image */
+    background-size: cover; /* Resize the background image to cover the entire container */
+}
+
+.feather {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+  }
+
+.feather-lg {
+    width: 60px;
+    height: 60px;
+}
+
+.feather-sm {
+    width: 16px;
+    height: 16px;
+}
+
+.face-icon {
+    width: 50px;
+    height: 50px;
+}
+
+.h-flip {
+    transform: scaleX(-1);
+}
+
+.footer-logo {
+    width: 24px;
 }
