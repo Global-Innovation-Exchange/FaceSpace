@@ -16,6 +16,8 @@
  * =============================================================================
  */
 
+import { Howl } from 'howler';
+import popUrl from './assets/pop.mp3';
 import Detector from './detector';
 
 function isMobile() {
@@ -32,6 +34,7 @@ async function main() {
   const isNotificationSupported = 'Notification' in window;
   let isDetected = false;
   let touchCounter = 0;
+  let alertAudio = null;
 
   // Request permission
   if (isNotificationSupported) {
@@ -73,6 +76,9 @@ async function main() {
       const detection = result.detection;
       if (detection.isNew) {
         touchCounter++;
+        if (alertAudio) {
+          alertAudio.play();
+        }
         if (isNotificationSupported && Notification.permission === 'granted') {
           const n = new Notification('You touched your face! 🤦');
           n.onclick = n.close;
@@ -111,6 +117,15 @@ async function main() {
     $heatmapInput.change(event => {
       const value = $(event.target).is(':checked');
       detector.update({ renderPointCloud: value, renderHeatmap: value });
+    });
+    const $soundInput = $('#sound-input');
+    $soundInput.change(event => {
+      const value = event.target.value;
+      if (value === 'pop') {
+        alertAudio = new Howl({ src: [popUrl], html5: true });
+      } else {
+        alertAudio = null;
+      }
     });
 
     detector.start();
