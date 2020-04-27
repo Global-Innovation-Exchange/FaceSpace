@@ -110,6 +110,7 @@ async function main() {
     if (Cookies.get('timeoutInputSet') === 'true' && Cookies.get('timeoutInputValue')){
       let $timeoutValue = Number(Cookies.get('timeoutInputValue'));
       $timeoutInput.val($timeoutValue);
+      $timeoutRange.val($timeoutValue);
       detector.update({ timeout: $timeoutValue });
     }
     $timeoutRange.change(event => {
