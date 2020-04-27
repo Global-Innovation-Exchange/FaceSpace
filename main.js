@@ -19,6 +19,7 @@
 import { Howl } from 'howler';
 import coronavirusUrl from './assets/audio/coronavirus.mp3';
 import popUrl from './assets/audio/pop.mp3';
+import Cookies from 'js-cookie'
 import Detector from './detector';
 
 function isMobile() {
@@ -115,8 +116,13 @@ async function main() {
       detector.update({ timeout: value });
     });
     const $heatmapInput = $('#heatmap-input');
+    if (Cookies.get('heatmap') === 'true'){
+      $heatmapInput.prop('checked', 'true');
+      detector.update({ renderPointCloud: true, renderHeatmap: true });
+    }
     $heatmapInput.change(event => {
       const value = $(event.target).is(':checked');
+      Cookies.set('heatmap', value);
       detector.update({ renderPointCloud: value, renderHeatmap: value });
     });
     const $soundInput = $('#sound-input');
