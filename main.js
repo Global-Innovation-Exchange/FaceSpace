@@ -28,6 +28,8 @@ function isMobile() {
   return isAndroid || isiOS;
 }
 
+const COOKIE_EXPIRATION_DAYS = 30;
+
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
 
@@ -114,8 +116,8 @@ async function main() {
       const value = event.target.value;
       $timeoutInput.val(value);
       detector.update({ timeout: value });
-      Cookies.set('timeoutInputSet', 'true');
-      Cookies.set('timeoutInputValue', String(value));
+      Cookies.set('timeoutInputSet', 'true', { expires: COOKIE_EXPIRATION_DAYS });
+      Cookies.set('timeoutInputValue', String(value), { expires: COOKIE_EXPIRATION_DAYS });
     });
     $timeoutInput.change(event => {
       const value = event.target.value;
@@ -129,7 +131,7 @@ async function main() {
     }
     $heatmapInput.change(event => {
       const value = $(event.target).is(':checked');
-      Cookies.set('heatmap', value);
+      Cookies.set('heatmap', value, { expires: COOKIE_EXPIRATION_DAYS });
       detector.update({ renderPointCloud: value, renderHeatmap: value });
     });
     const $soundInput = $('#sound-input');
@@ -149,7 +151,7 @@ async function main() {
       } else {
         alertAudio = null;
       }
-      Cookies.set('alertAudio', value);
+      Cookies.set('alertAudio', value, { expires: COOKIE_EXPIRATION_DAYS });
     });
 
     detector.start();
