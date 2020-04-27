@@ -126,6 +126,13 @@ async function main() {
       detector.update({ renderPointCloud: value, renderHeatmap: value });
     });
     const $soundInput = $('#sound-input');
+    if (Cookies.get('alertAudio') === 'pop') {
+      $soundInput.val('pop');
+      alertAudio = new Howl({ src: [popUrl], html5: true });
+    } else if (Cookies.get('alertAudio') === 'coronavirus') {
+      $soundInput.val('coronavirus');
+      alertAudio = new Howl({ src: [coronavirusUrl], html5: true });
+    }
     $soundInput.change(event => {
       const value = event.target.value;
       if (value === 'pop') {
@@ -135,6 +142,7 @@ async function main() {
       } else {
         alertAudio = null;
       }
+      Cookies.set('alertAudio', value);
     });
 
     detector.start();
