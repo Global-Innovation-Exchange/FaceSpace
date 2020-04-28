@@ -70,6 +70,17 @@ async function main() {
       $('#face-touch-alert').hide();
     }
   }
+
+  function getHowl(name) {
+    if (name === 'pop') {
+      return new Howl({ src: [popUrl], html5: true });
+    } else if (name === 'coronavirus') {
+      return new Howl({ src: [coronavirusUrl], html5: true });
+    } else {
+      return null;
+    }
+  }
+
   const detectorParams = {
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
@@ -105,6 +116,9 @@ async function main() {
     // Set up the tuning knobs
     const $timeoutRange = $('#timeout-range');
     const $timeoutInput = $('#timeout-input');
+    const $heatmapInput = $('#heatmap-input');
+    const $soundInput = $('#sound-input');
+
     $timeoutRange.val(detectorParams.timeout);
     $timeoutInput.val(detectorParams.timeout);
     $timeoutRange.change(event => {
@@ -118,7 +132,7 @@ async function main() {
       $timeoutRange.val(value);
       detector.update({ timeout: value });
     });
-    const $heatmapInput = $('#heatmap-input');
+
     if (Cookies.get('heatmap') === 'true'){
       $heatmapInput.prop('checked', 'true');
       detector.update({ renderPointCloud: true, renderHeatmap: true });
@@ -128,14 +142,10 @@ async function main() {
       Cookies.set('heatmap', value);
       detector.update({ renderPointCloud: value, renderHeatmap: value });
     });
-    const $soundInput = $('#sound-input');
-    if (Cookies.get('alertAudio') === 'pop') {
-      $soundInput.val('pop');
-      alertAudio = new Howl({ src: [popUrl], html5: true });
-    } else if (Cookies.get('alertAudio') === 'coronavirus') {
-      $soundInput.val('coronavirus');
-      alertAudio = new Howl({ src: [coronavirusUrl], html5: true });
-    }
+
+    const alertAudioCookie = Cookies.get('alertAudio');
+    let alertAudio = getHowl(alertAudioCookie);
+    $soundInput.val(alertAudioCookie || 'built-in');
     $soundInput.change(event => {
       const value = event.target.value;
       if (value === 'pop') {
