@@ -107,7 +107,7 @@ async function main() {
     const $timeoutInput = $('#timeout-input');
     $timeoutRange.val(detectorParams.timeout);
     $timeoutInput.val(detectorParams.timeout);
-    if (Cookies.get('timeoutInputSet') === 'true' && Cookies.get('timeoutInputValue')){
+    if (Cookies.get('timeoutInputValue')){
       let $timeoutValue = Number(Cookies.get('timeoutInputValue'));
       $timeoutInput.val($timeoutValue);
       $timeoutRange.val($timeoutValue);
@@ -117,7 +117,6 @@ async function main() {
       const value = event.target.value;
       $timeoutInput.val(value);
       detector.update({ timeout: value });
-      Cookies.set('timeoutInputSet', 'true');
       Cookies.set('timeoutInputValue', String(value));
     });
     $timeoutInput.change(event => {
