@@ -74,7 +74,7 @@ async function main() {
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
     renderPointCloud: false,
-    timeout: 300,
+    timeout: Number(Cookies.get('timeout')) || 300,
     renderCanvas: true,
     onRendered: (result) => {
       const detection = result.detection;
@@ -107,17 +107,11 @@ async function main() {
     const $timeoutInput = $('#timeout-input');
     $timeoutRange.val(detectorParams.timeout);
     $timeoutInput.val(detectorParams.timeout);
-    if (Cookies.get('timeoutInputValue')){
-      let $timeoutValue = Number(Cookies.get('timeoutInputValue'));
-      $timeoutInput.val($timeoutValue);
-      $timeoutRange.val($timeoutValue);
-      detector.update({ timeout: $timeoutValue });
-    }
     $timeoutRange.change(event => {
       const value = event.target.value;
       $timeoutInput.val(value);
       detector.update({ timeout: value });
-      Cookies.set('timeoutInputValue', String(value));
+      Cookies.set('timeout', String(value));
     });
     $timeoutInput.change(event => {
       const value = event.target.value;
