@@ -81,10 +81,12 @@ async function main() {
     }
   }
 
+  const heatmapCookie = Cookies.get('heatmap') === 'true'
   const detectorParams = {
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
-    renderPointCloud: false,
+    renderPointCloud: heatmapCookie,
+    renderHeatmap: heatmapCookie,
     timeout: Number(Cookies.get('timeout')) || 300,
     renderCanvas: true,
     onRendered: (result) => {
@@ -132,11 +134,7 @@ async function main() {
       $timeoutRange.val(value);
       detector.update({ timeout: value });
     });
-
-    if (Cookies.get('heatmap') === 'true'){
-      $heatmapInput.prop('checked', 'true');
-      detector.update({ renderPointCloud: true, renderHeatmap: true });
-    }
+    $heatmapInput.prop('checked', heatmapCookie);
     $heatmapInput.change(event => {
       const value = $(event.target).is(':checked');
       Cookies.set('heatmap', value);
