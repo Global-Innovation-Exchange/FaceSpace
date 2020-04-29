@@ -81,13 +81,13 @@ async function main() {
     }
   }
 
-  const heatmapCookie = Cookies.get('heatmap') === 'true'
+  const heatmapCookie = initializeCookie('heatmap') === 'true'
   const detectorParams = {
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
     renderPointCloud: heatmapCookie,
     renderHeatmap: heatmapCookie,
-    timeout: Number(Cookies.get('timeout')) || 300,
+    timeout: Number(initializeCookie('timeout')) || 300,
     renderCanvas: true,
     onRendered: (result) => {
       const detection = result.detection;
@@ -108,6 +108,15 @@ async function main() {
       requestAnimationFrame(updateUI);
     },
   };
+
+  function initializeCookie(name){
+    let value = Cookies.get(name);
+    if (value) {
+      Cookies.set(name, value);
+      return value
+    }
+    return null
+  } 
 
   try {
     const detector = new Detector(document.getElementById('detector-container'), detectorParams);
@@ -141,7 +150,7 @@ async function main() {
       detector.update({ renderPointCloud: value, renderHeatmap: value });
     });
 
-    const alertAudioCookie = Cookies.get('alertAudio');
+    const alertAudioCookie = initializeCookie('alertAudio')
     let alertAudio = getHowl(alertAudioCookie);
     $soundInput.val(alertAudioCookie || 'built-in');
     $soundInput.change(event => {
