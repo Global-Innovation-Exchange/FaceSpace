@@ -27,17 +27,38 @@ function isMobile() {
   return isAndroid || isiOS;
 }
 
-Cookies.defaults.expires = 30 // days
+function getHowl(name) {
+  if (name === 'pop') {
+    return new Howl({ src: [popUrl], html5: true });
+  } else {
+    return null;
+  }
+}
+
+function initializeCookie(name) {
+  const value = Cookies.get(name);
+  if (value) {
+    Cookies.set(name, value);
+  }
+  return value;
+}
+
+// Set global expiration days
+Cookies.defaults.expires = 30; // days
 
 const VIDEO_WIDTH = 640;
 const VIDEO_HEIGHT = 500;
 
 async function main() {
+  const heatmapCookie = initializeCookie('heatmap') === 'true';
+  const alertAudioCookie = initializeCookie('alertAudio');
+  const timeoutCookie = Number(initializeCookie('timeout'));
+
   const mobile = isMobile();
   const isNotificationSupported = 'Notification' in window;
   let isDetected = false;
   let touchCounter = 0;
-  let alertAudio = null;
+  let alertAudio = getHowl(alertAudioCookie);
 
   // Request permission
   if (isNotificationSupported) {
@@ -70,23 +91,12 @@ async function main() {
     }
   }
 
-  function getHowl(name) {
-    if (name === 'pop') {
-      return new Howl({ src: [popUrl], html5: true });
-    } else if (name === 'coronavirus') {
-      return new Howl({ src: [coronavirusUrl], html5: true });
-    } else {
-      return null;
-    }
-  }
-
-  const heatmapCookie = initializeCookie('heatmap') === 'true'
   const detectorParams = {
     width: mobile ? undefined : VIDEO_WIDTH,
     height: mobile ? undefined : VIDEO_HEIGHT,
     renderPointCloud: heatmapCookie,
     renderHeatmap: heatmapCookie,
-    timeout: Number(initializeCookie('timeout')) || 300,
+    timeout: timeoutCookie || 300,
     renderCanvas: true,
     onRendered: (result) => {
       const detection = result.detection;
@@ -108,20 +118,10 @@ async function main() {
     },
   };
 
-  function initializeCookie(name){
-    let value = Cookies.get(name);
-    if (value) {
-      Cookies.set(name, value);
-      return value
-    }
-    return null
-  } 
 
   try {
     const detector = new Detector(document.getElementById('detector-container'), detectorParams);
     await detector.load();
-    $('#loading-container').remove();
-    $('#main-container').show();
 
     // Set up the tuning knobs
     const $timeoutRange = $('#timeout-range');
@@ -149,18 +149,15 @@ async function main() {
       detector.update({ renderPointCloud: value, renderHeatmap: value });
     });
 
-    const alertAudioCookie = initializeCookie('alertAudio')
-    let alertAudio = getHowl(alertAudioCookie);
     $soundInput.val(alertAudioCookie || 'built-in');
     $soundInput.change(event => {
       const value = event.target.value;
-      if (value === 'pop') {
-        alertAudio = new Howl({ src: [popUrl], html5: true });
-      } else {
-        alertAudio = null;
-      }
+      alertAudio = getHowl(value);
       Cookies.set('alertAudio', value);
     });
+
+    $('#loading-container').remove();
+    $('#main-container').show();
 
     detector.start();
   } catch (err) {
