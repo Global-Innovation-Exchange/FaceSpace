@@ -9,16 +9,17 @@
     "node": ">=8.9.0"
   },
   "dependencies": {
-    "@tensorflow-models/facemesh": "0.0.1",
-    "@tensorflow-models/handpose": "^0.0.3",
-    "@tensorflow/tfjs-converter": "^1.7.3",
-    "@tensorflow/tfjs-core": "^1.7.3",
+    "@tensorflow-models/facemesh": "0.0.4",
+    "@tensorflow-models/handpose": "^0.0.6",
+    "@tensorflow/tfjs-backend-webgl": "2.3.0",
+    "@tensorflow/tfjs-converter": "^2.3.0",
+    "@tensorflow/tfjs-core": "^2.3.0",
     "@types/chroma-js": "^2.0.0",
     "@types/js-cookie": "^2.2.6",
     "chroma-js": "^2.1.0",
     "howler": "^2.1.3",
     "js-cookie": "^2.2.1",
-    "scatter-gl": "^0.0.5",
+    "scatter-gl": "^0.0.7",
     "stats.js": "^0.17.0",
     "worker-timers": "^6.0.7"
   },
@@ -39,11 +40,11 @@
     "babel-preset-env": "~1.7.0",
     "clang-format": "~1.4.0",
     "cross-env": "^7.0.2",
-    "eslint": "^6.8.0",
+    "eslint": "^7.9.0",
     "eslint-config-google": "^0.14.0",
     "parcel-bundler": "~1.12.4",
     "shx": "^0.3.2",
-    "typescript": "^3.8.3",
+    "typescript": "^4.0.2",
     "yalc": "~1.0.0-pre.27"
   },
   "eslintConfig": {

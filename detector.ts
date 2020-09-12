@@ -1,6 +1,7 @@
 import * as facemesh from '@tensorflow-models/facemesh';
 import * as handpose from '@tensorflow-models/handpose';
 import * as tf from '@tensorflow/tfjs-core';
+import '@tensorflow/tfjs-backend-webgl';
 import { ScatterGL } from 'scatter-gl';
 
 import { sleep } from './utils';
@@ -19,7 +20,7 @@ class DetectionBuffer {
     private buffer: boolean[];
     constructor(size: number) {
         this.buffer = [];
-        for(let i = 0; i < (size + 1); i++) {
+        for (let i = 0; i < (size + 1); i++) {
             this.buffer.push(false);
         }
     }
@@ -52,7 +53,7 @@ function getHandPoints(predictions: HandPrediction[]) {
 
 type MinDistance = {
     diffX: number,
-    diffY:number,
+    diffY: number,
     diffZ: number,
     distance: number,
     handPointIndex: number,
@@ -360,16 +361,16 @@ export default class Detector {
             ] as Coords3D;
             // Add finger lines
             const fingerSeq = handPoints.length > 0
-                ? Object.values(fingerLookup).map(fingerIndices => ({indices: fingerIndices})) : [];
+                ? Object.values(fingerLookup).map(fingerIndices => ({ indices: fingerIndices })) : [];
             // Add hand bounding box lines
             const boxValues = Object.values(boxLookup);
             const handBoxSeqOffset = handPoints.length + facePoints.length + ANCHOR_POINTS.length;
             const handBoxSeq = handBoxPoints.length > 0
-                ? boxValues.map(b => ({indices: b.map(s => s + handBoxSeqOffset)})) : [];
+                ? boxValues.map(b => ({ indices: b.map(s => s + handBoxSeqOffset) })) : [];
             // Add face bounding box lines
             const faceBoxSeqOffset = handBoxSeqOffset + handBoxPoints.length;
             const faceBoxSeq = faceBoxPoints.length > 0
-                ? boxValues.map(b => ({indices: b.map(s => s + faceBoxSeqOffset)})): [];
+                ? boxValues.map(b => ({ indices: b.map(s => s + faceBoxSeqOffset) })) : [];
             const dataset = new ScatterGL.Dataset(
                 handPoints.concat(facePoints)
                     .concat(ANCHOR_POINTS)
@@ -395,7 +396,7 @@ export default class Detector {
                 }
                 const renderHeatmap = this.params.renderHeatmap;
                 let length = handPoints.length;
-                if (i < length) return renderHeatmap ?  handHeatmap[i].toString() : 'skyblue';
+                if (i < length) return renderHeatmap ? handHeatmap[i].toString() : 'skyblue';
 
                 length = length + facePoints.length;
                 if (i < length) return renderHeatmap ? faceHeatmap[i - handPoints.length].toString() : 'lightred';
