@@ -161,6 +161,7 @@ async function main() {
 
     detector.start();
   } catch (err) {
+    console.error(err);
     $('#loading-spin').remove();
     $('#loading-message').html('<h1><strong>🚫Sorry, we are not able to access the webcam.</strong></h1>');
   }
