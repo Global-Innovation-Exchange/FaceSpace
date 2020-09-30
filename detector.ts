@@ -119,7 +119,7 @@ const defaultParams: DetectorParams = {
     height: undefined,
     maxFaces: 1,
     timeout: 300, // 0.3 sec
-    detectionHistory: 1000 * 60 * 60, // An hour
+    detectionHistory: 1000 * 60,// * 60, // An hour
     detectionBufferSize: 2,
     backend: 'webgl',
     onRender: () => { },
@@ -277,7 +277,7 @@ export default class Detector {
 
     async renderPrediction() {
         if (!this.faceModel || !this.handModel) {
-            throw new Error('Run load() frist');
+            throw new Error('Run load() first');
         }
 
         // Skip if the video is paused
@@ -347,7 +347,7 @@ export default class Detector {
 
         if (detection.isDetected) {
             this.params.onDetected();
-            this.detectionHistory.push(minDistance.handPointIndex, minDistance.facePointIndex);
+            this.detectionHistory.push(minDistance.handPointIndex, minDistance.facePointIndex, detection.isNew);
         }
 
         if (this.params.renderPointCloud) {
@@ -382,13 +382,22 @@ export default class Detector {
                     { 'rotateOnStart': false, 'selectEnabled': false });
                 this.scatterGL.render(dataset);
             } else {
-                this.scatterGL.updateDataset(dataset);
+                disableWarn(() => {
+                    this.scatterGL.updateDataset(dataset);
+                });
             }
 
-            const faceHeatmap = this.detectionHistory.getFaceMap('OrRd');
-            const handHeatmap = this.detectionHistory.getHandMap(['skyblue', 'navy']);
+            // Look at heatmap for the past hour
+            const now = new Date();
+            const from = new Date(now)
+            from.setHours(now.getHours() - 1);
+            const heatMap = await this.detectionHistory.getHeatMap(from, now);
+            const faceHeatmap = heatMap.getFaceMap('OrRd');
+            const handHeatmap = heatMap.getHandMap(['skyblue', 'navy']);
             // Render lines for fingers and bounding boxes
-            this.scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
+            disableWarn(() => {
+                this.scatterGL.setSequences(fingerSeq.concat(handBoxSeq).concat(faceBoxSeq));
+            });
             this.scatterGL.setPointColorer((i, selectedIndices, hoverIndex) => {
                 if (minDistance && this.params.renderContactPoint &&
                     (i == handPoints.length + minDistance.facePointIndex || i == minDistance.handPointIndex)) {
@@ -444,5 +453,17 @@ export default class Detector {
                 this.canvasWrapper.style.display = params[k] ? '' : 'none';
             }
         });
+    }
+}
+
+function disableWarn(fn: Function) {
+    // Disabled the warning until the pull request of the fix is merged
+    // https://github.com/PAIR-code/scatter-gl/pull/42
+    const warn = console.warn;
+    try {
+        console.warn = (...data: any[]) => { };
+        return fn();
+    } finally {
+        console.warn = warn;
     }
 }
